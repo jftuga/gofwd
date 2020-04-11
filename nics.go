@@ -66,11 +66,10 @@ func extractIPAddrs(ifaceName string, allAddresses []net.Addr, brief bool) ([]st
 	return allIPv4, allIPv6
 }
 
-func networkInterfaces(brief bool, debug bool) ([]string, []string) {
+func networkInterfaces(brief bool, debug bool) ([]string, []string, error) {
 	adapters, err := net.Interfaces()
 	if err != nil {
-		fmt.Print(fmt.Errorf("%+v\n", err.Error()))
-		return nil, nil
+		return nil, nil, err
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
@@ -84,11 +83,9 @@ func networkInterfaces(brief bool, debug bool) ([]string, []string) {
 	var v4Addresses []string
 	var v6Addresses []string
 	for _, iface := range adapters {
-		//fmt.Printf("%T %v\n", iface, iface)
 		allAddresses, err := iface.Addrs()
 		if err != nil {
-			fmt.Print(fmt.Errorf("%+v\n", err.Error()))
-			return nil, nil
+			return nil, nil, nil
 		}
 
 		allIPv4, allIPv6 := extractIPAddrs(iface.Name, allAddresses, brief)
@@ -98,7 +95,6 @@ func networkInterfaces(brief bool, debug bool) ([]string, []string) {
 			fmt.Println(iface.Name, allAddresses)
 			fmt.Println("ipv4:", allIPv4)
 			fmt.Println("ipv6:", allIPv6)
-
 		}
 
 		ifaceName := strings.ToLower(iface.Name)
@@ -131,7 +127,7 @@ func networkInterfaces(brief bool, debug bool) ([]string, []string) {
 	}
 	table.Render()
 
-	return v4Addresses, v6Addresses
+	return v4Addresses, v6Addresses, err
 }
 
 func nics() {
