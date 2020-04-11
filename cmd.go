@@ -13,10 +13,12 @@ errHandler, signalHandler, fwd, tcpStart
 package main
 
 import (
+	"errors"
 	"io"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -32,7 +34,7 @@ var (
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
 	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
-	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Int()
+	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
 )
 
 var logger *zap.SugaredLogger
@@ -89,13 +91,11 @@ func fwd(src net.Conn, remote string, proto string) {
 	}()
 }
 
-func tcpStart(from string, to string) {
+func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult) {
 	proto := "tcp"
 
 	fromAddress, err := net.ResolveTCPAddr(proto, from)
 	errHandler(err, true)
-
-	//validateLocation(fromAddress,nil)
 
 	toAddress, err := net.ResolveTCPAddr(proto, to)
 	errHandler(err, true)
@@ -105,12 +105,22 @@ func tcpStart(from string, to string) {
 
 	defer listener.Close()
 
-	logger.Infof("Forwarding %s traffic from '%v' to '%v'", proto, fromAddress, toAddress)
+	logger.Infof("[%v] -> [%v] Forwarding %s traffic", fromAddress, proto, toAddress)
 
 	for {
 		src, err := listener.Accept()
 		errHandler(err, true)
-		logger.Infof("New connection established from '%v'", src.RemoteAddr())
+		logger.Infof("[%v] New connection established", src.RemoteAddr())
+
+		slots := strings.Split(src.RemoteAddr().String(), ":")
+		remoteIP := slots[0]
+		remoteGeoIP, _ := getIPInfo(remoteIP) /* FIXME: check the err */
+		invalidLocation := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
+		if len(invalidLocation) > 0 {
+			errHandler(errors.New(invalidLocation), false)
+			// do not attempt: listener.Close()
+			continue
+		}
 		go fwd(src, to, proto)
 	}
 }
@@ -129,5 +139,17 @@ func main() {
 
 	loggingHandler()
 	signalHandler()
-	tcpStart(*from, *to)
+
+	var localGeoIP ipInfoResult
+	localGeoIP, _ = getIPInfo("")
+
+	var restrictionsGeoIP ipInfoResult
+
+	restrictionsGeoIP.City = *city
+	restrictionsGeoIP.Region = *region
+	restrictionsGeoIP.Country = *country
+	restrictionsGeoIP.Distance = *distance
+	logger.Infof("Geo IP Restrictions: %v", restrictionsGeoIP)
+
+	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP)
 }

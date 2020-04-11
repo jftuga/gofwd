@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -34,7 +33,7 @@ Args:
 Returns:
 	an ipInfoResult struct containing the information returned by the service
 */
-func getIPInfo(ip string) (*ipInfoResult, error) {
+func getIPInfo(ip string) (ipInfoResult, error) {
 	var obj ipInfoResult
 
 	api := "/json"
@@ -44,63 +43,59 @@ func getIPInfo(ip string) (*ipInfoResult, error) {
 	url := "https://ipinfo.io/" + ip + api
 	resp, err := http.Get(url)
 	if err != nil {
-		return &obj, err
+		return obj, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &obj, err
+		return obj, err
 	}
 
 	if strings.Contains(string(body), "Rate limit exceeded") {
 		err := fmt.Errorf("Error for '%s', %s", url, string(body))
-		return new(ipInfoResult), err
+		empty := ipInfoResult{}
+		return empty, err
 	}
 
 	json.Unmarshal(body, &obj)
-	return &obj, nil
+	return obj, nil
 }
 
-func validateLocation(src net.Conn, geoIP ipInfoResult) string {
-	slots := strings.Split(src.RemoteAddr().String(), ":")
-	remoteIP := slots[0]
-	remoteIPInfo, _ := getIPInfo(remoteIP)
+func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult) string {
+	if 0 == len(localGeoIP.Loc) {
+		return fmt.Sprintf("localGeoIP '%s' does not have lat,lon", localGeoIP.IP)
+	}
+	if 0 == len(remoteGeoIP.Loc) {
+		return fmt.Sprintf("remoteGeoIP '%s' does not have lat,lon", remoteGeoIP.IP)
+	}
 
 	var miles float64
 	var lat1, lon1, lat2, lon2 float64
 	var err error
-	if len(geoIP.Loc) > 0 {
-		lat1, lon1, err = latlon2coord(remoteIPInfo.Loc)
-		if err != nil {
-			return "remote-LatLon"
-		}
-		lat2, lon2, err = latlon2coord(geoIP.Loc)
-		if err != nil {
-			return "geoIP-LatLon"
-		}
 
-		miles = HaversineDistance(lat1, lon1, lat2, lon2)
-		fmt.Println("Required Distance:", geoIP.Distance)
-		fmt.Println("  Actual Distance:", miles)
+	lat1, lon1, err = latlon2coord(remoteGeoIP.Loc)
+	if err != nil {
+		return "remote-LatLon coordinates"
+	}
+	lat2, lon2, err = latlon2coord(localGeoIP.Loc)
+	if err != nil {
+		return "localGeoIP-LatLon coordinates"
 	}
 
-	distanceStr := fmt.Sprintf("%.2f", miles)
-	fmt.Println("distance: ", distanceStr)
-	fmt.Println(remoteIPInfo)
+	miles = HaversineDistance(lat1, lon1, lat2, lon2)
+	//fmt.Printf("       miles: %.2f\n", miles)
+	//fmt.Println("Required Distance:", restrictionsGeoIP.Distance)
 
 	mismatch := ""
-	if len(geoIP.City) > 0 && geoIP.City != strings.ToUpper(remoteIPInfo.City) {
-		mismatch = "City"
-	}
-	if len(geoIP.Region) > 0 && geoIP.Region != strings.ToUpper(remoteIPInfo.Region) {
-		mismatch = "Region"
-	}
-	if len(geoIP.Country) > 0 && geoIP.Country != strings.ToUpper(remoteIPInfo.Country) {
-		mismatch = "Country"
-	}
-	if len(geoIP.Loc) > 0 && miles > geoIP.Distance {
-		mismatch = "Distance"
+	if len(restrictionsGeoIP.City) > 0 && strings.ToUpper(restrictionsGeoIP.City) != strings.ToUpper(remoteGeoIP.City) {
+		mismatch = fmt.Sprintf("[%s] Forbidden City: %s", remoteGeoIP.IP, remoteGeoIP.City)
+	} else if len(restrictionsGeoIP.Region) > 0 && strings.ToUpper(restrictionsGeoIP.Region) != strings.ToUpper(remoteGeoIP.Region) {
+		mismatch = fmt.Sprintf("[%s] Forbidden Region: %s", remoteGeoIP.IP, remoteGeoIP.Region)
+	} else if len(restrictionsGeoIP.Country) > 0 && strings.ToUpper(restrictionsGeoIP.Country) != strings.ToUpper(remoteGeoIP.Country) {
+		mismatch = fmt.Sprintf("[%s] Forbidden Country: %s", remoteGeoIP.IP, remoteGeoIP.Country)
+	} else if restrictionsGeoIP.Distance > 0 && miles > restrictionsGeoIP.Distance {
+		mismatch = fmt.Sprintf("[%s] Forbidden Distance: %.2f", remoteGeoIP.IP, miles)
 	}
 	return mismatch
 }
