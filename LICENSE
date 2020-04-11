@@ -1,6 +1,9 @@
 MIT License
 
-Copyright (c) 2020 J Taylor
+Copyright (c) 2020 John Taylor
+
+Some code was adopted from https://github.com/kintoandar/fwd/
+Copyright (c) 2016 Joel Bastos
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
