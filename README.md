@@ -44,6 +44,7 @@ Flags:
 ```
 
 ## Duo Auth API (work in progress)
+* `gofwd` will only work with a single Duo account.
 * You will need to create a Duo account.  The free tier supports 10 users.
 * https://duo.com/docs/authapi
 
