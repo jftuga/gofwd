@@ -20,6 +20,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/olekukonko/tablewriter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -28,9 +29,10 @@ import (
 const version = "0.2.0"
 
 var (
-	list = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
-	from = kingpin.Flag("from", "from address:port").Short('f').String()
-	to   = kingpin.Flag("to", "to address:port").Short('t').String()
+	list     = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
+	from     = kingpin.Flag("from", "from address:port").Short('f').String()
+	to       = kingpin.Flag("to", "to address:port").Short('t').String()
+	examples = kingpin.Flag("examples", "show command line example").Bool()
 
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
@@ -129,10 +131,28 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 	}
 }
 
+func showExamples() {
+	examples := getExamples()
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetAutoWrapText(false)
+	table.SetHeader([]string{"Example", "Command"})
+
+	for _, entry := range examples {
+		table.Append(entry)
+	}
+
+	table.Render()
+}
+
 func main() {
 	kingpin.Parse()
 	if *list {
 		nics()
+		os.Exit(0)
+	}
+
+	if *examples {
+		showExamples()
 		os.Exit(0)
 	}
 
@@ -144,6 +164,8 @@ func main() {
 		kingpin.FatalUsage("--distance must also be used with -loc")
 		os.Exit(1)
 	}
+
+	//FIXME: do not allow -d with any of these: city, region, country
 
 	loggingHandler()
 	signalHandler()
