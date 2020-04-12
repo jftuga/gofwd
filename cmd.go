@@ -26,9 +26,9 @@ import (
 )
 
 var (
+	list = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
 	from = kingpin.Flag("from", "from address:port").Short('f').String()
 	to   = kingpin.Flag("to", "to address:port").Short('t').String()
-	list = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
 
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
