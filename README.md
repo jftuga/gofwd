@@ -4,14 +4,14 @@ A TCP port forwarder with Duo and Geographic IP integration
 ## Usage
 
 ```
-usage: gofwd.exe [<flags>]
+usage: gofwd [<flags>]
 
 Flags:
       --help               Show context-sensitive help (also try --help-long and
                            --help-man).
+  -i, --int                list local interface IP addresses
   -f, --from=FROM          from address:port
   -t, --to=TO              to address:port
-  -i, --int                list local interface IP addresses
       --city=CITY          only accept incoming connections that originate from
                            given city
       --region=REGION      only accept incoming connections that originate from
