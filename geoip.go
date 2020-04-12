@@ -62,30 +62,41 @@ func getIPInfo(ip string) (ipInfoResult, error) {
 	return obj, nil
 }
 
-func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult) string {
+func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult) (string, string) {
+	var distanceCalc string
+
 	if 0 == len(localGeoIP.Loc) {
-		return fmt.Sprintf("localGeoIP '%s' does not have lat,lon", localGeoIP.IP)
+		return fmt.Sprintf("localGeoIP '%s' does not have lat,lon", localGeoIP.IP), ""
 	}
 	if 0 == len(remoteGeoIP.Loc) {
-		return fmt.Sprintf("remoteGeoIP '%s' does not have lat,lon", remoteGeoIP.IP)
+		return fmt.Sprintf("remoteGeoIP '%s' does not have lat,lon", remoteGeoIP.IP), ""
 	}
 
 	var miles float64
 	var lat1, lon1, lat2, lon2 float64
 	var err error
 
-	lat1, lon1, err = latlon2coord(remoteGeoIP.Loc)
-	if err != nil {
-		return "remote-LatLon coordinates"
-	}
-	lat2, lon2, err = latlon2coord(localGeoIP.Loc)
-	if err != nil {
-		return "localGeoIP-LatLon coordinates"
-	}
+	if restrictionsGeoIP.Distance > 0 {
+		lat1, lon1, err = latlon2coord(remoteGeoIP.Loc)
+		if err != nil {
+			return "", "remote-LatLon coordinates"
+		}
 
-	miles = HaversineDistance(lat1, lon1, lat2, lon2)
-	//fmt.Printf("       miles: %.2f\n", miles)
-	//fmt.Println("Required Distance:", restrictionsGeoIP.Distance)
+		if len(restrictionsGeoIP.Loc) > 0 { // location and distance
+			lat2, lon2, err = latlon2coord(restrictionsGeoIP.Loc)
+			if err != nil {
+				return "restrictions.GeoIP-LatLon coordinates", ""
+			}
+		} else { // distance only
+			lat2, lon2, err = latlon2coord(localGeoIP.Loc)
+			if err != nil {
+				return "localGeoIP-LatLon coordinates", ""
+			}
+		}
+		miles = HaversineDistance(lat1, lon1, lat2, lon2)
+		milesDiff := math.Abs(miles - restrictionsGeoIP.Distance)
+		distanceCalc = fmt.Sprintf("Current Distance: %.2f; Maximum Distance: %.2f; Difference: %.2f", miles, restrictionsGeoIP.Distance, milesDiff)
+	}
 
 	mismatch := ""
 	if len(restrictionsGeoIP.City) > 0 && strings.ToUpper(restrictionsGeoIP.City) != strings.ToUpper(remoteGeoIP.City) {
@@ -95,9 +106,10 @@ func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restric
 	} else if len(restrictionsGeoIP.Country) > 0 && strings.ToUpper(restrictionsGeoIP.Country) != strings.ToUpper(remoteGeoIP.Country) {
 		mismatch = fmt.Sprintf("[%s] Forbidden Country: %s", remoteGeoIP.IP, remoteGeoIP.Country)
 	} else if restrictionsGeoIP.Distance > 0 && miles > restrictionsGeoIP.Distance {
-		mismatch = fmt.Sprintf("[%s] Forbidden Distance: %.2f", remoteGeoIP.IP, miles)
+		// mismatch = fmt.Sprintf("[%s] Forbidden Distance: %.2f", remoteGeoIP.IP, miles)
+		mismatch = fmt.Sprintf("[%s] DENY;", remoteGeoIP.IP)
 	}
-	return mismatch
+	return mismatch, distanceCalc
 }
 
 /*

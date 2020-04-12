@@ -13,7 +13,6 @@ errHandler, signalHandler, fwd, tcpStart
 package main
 
 import (
-	"errors"
 	"io"
 	"net"
 	"os"
@@ -34,6 +33,7 @@ var (
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
 	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
+	loc      = kingpin.Flag("loc", "only accept incoming connections from within a geographic radius given in LAT,LON").String()
 	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
 )
 
@@ -115,12 +115,14 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
 		remoteGeoIP, _ := getIPInfo(remoteIP) /* FIXME: check the err */
-		invalidLocation := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
+		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if len(invalidLocation) > 0 {
-			errHandler(errors.New(invalidLocation), false)
+			//errHandler(errors.New(invalidLocation), false)
+			logger.Warnf("%s %s", invalidLocation, distanceCalc)
 			// do not attempt: listener.Close()
 			continue
 		}
+		logger.Infof("[%v] ALLOW; %s", src.RemoteAddr(), distanceCalc)
 		go fwd(src, to, proto)
 	}
 }
@@ -133,8 +135,11 @@ func main() {
 	}
 
 	if !(len(*from) >= 9 && len(*to) >= 9) {
-		kingpin.Usage()
+		kingpin.FatalUsage("Both --from and --to are mandatory")
 		os.Exit(1)
+	}
+	if len(*loc) > 0 && 0 == *distance {
+		kingpin.FatalUsage("--distance must also be used with -loc")
 	}
 
 	loggingHandler()
@@ -149,6 +154,8 @@ func main() {
 	restrictionsGeoIP.Region = *region
 	restrictionsGeoIP.Country = *country
 	restrictionsGeoIP.Distance = *distance
+	restrictionsGeoIP.Loc = *loc
+
 	logger.Infof("Geo IP Restrictions: %v", restrictionsGeoIP)
 
 	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP)
