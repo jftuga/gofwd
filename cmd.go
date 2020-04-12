@@ -105,12 +105,12 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 	defer listener.Close()
 
-	logger.Infof("[%v] -> [%v] Forwarding %s traffic", fromAddress, proto, toAddress)
+	logger.Infof("[%v] Forwarding to [%s] [%s]", fromAddress, proto, toAddress)
 
 	for {
 		src, err := listener.Accept()
 		errHandler(err, true)
-		logger.Infof("[%v] New connection established", src.RemoteAddr())
+		//logger.Infof("[%v] New connection established", src.RemoteAddr())
 
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
@@ -122,7 +122,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 			// do not attempt: listener.Close()
 			continue
 		}
-		logger.Infof("[%v] ALLOW; %s", src.RemoteAddr(), distanceCalc)
+		logger.Infof("[%v] ESTABLISHED; %s", src.RemoteAddr(), distanceCalc)
 		go fwd(src, to, proto)
 	}
 }
@@ -140,6 +140,7 @@ func main() {
 	}
 	if len(*loc) > 0 && 0 == *distance {
 		kingpin.FatalUsage("--distance must also be used with -loc")
+		os.Exit(1)
 	}
 
 	loggingHandler()
