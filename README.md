@@ -1,5 +1,5 @@
 # gofwd
-A TCP port forwarder with Duo and Geographic IP integration
+A TCP port forwarder with Duo Authentication and Geographic IP integration
 
 ## Usage
 
