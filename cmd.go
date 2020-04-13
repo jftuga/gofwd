@@ -173,6 +173,9 @@ func startDuo(duoFile string, duoUser string) duoCredentials {
 }
 
 func main() {
+	loggingHandler()
+	signalHandler()
+
 	kingpin.Parse()
 	if *list {
 		nics()
@@ -207,9 +210,6 @@ func main() {
 		}
 		duoCred = startDuo(slots[0], slots[1])
 	}
-
-	loggingHandler()
-	signalHandler()
 
 	var restrictionsGeoIP ipInfoResult
 	restrictionsGeoIP.City = *city
