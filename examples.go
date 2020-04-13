@@ -9,7 +9,8 @@ func getExamples() [][]string {
 	examples = append(examples, []string{`allow only if remote IP is located in Denver, CO`, `gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -city Denver -region Colorado`})
 	examples = append(examples, []string{`allow only if remote IP is located in Canada`, `gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -country CA`})
 	examples = append(examples, []string{`allow only if remote IP is located within 75 miles of Atlanta, GA`, `gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -l 33.756529,-84.400996 -d 75`})
-	examples = append(examples, []string{`to get Latitude, Longitude use https://www.latlong.net/`, ` `})
+	examples = append(examples, []string{`    to get Latitude, Longitude use https://www.latlong.net/`, ` `})
+	examples = append(examples, []string{`allow only for a successful two-factor duo auth for 'testuser'`, `gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 --duo duo.ini:testuser`})
 
 	return examples
 
