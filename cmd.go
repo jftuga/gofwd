@@ -14,6 +14,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -28,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.3.0"
+const pgmVersion = "0.3.0"
 
 // number of seconds to cache a successful Duo authentication
 const duoAuthCacheTime int64 = 120
@@ -37,7 +38,8 @@ var (
 	list     = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
 	from     = kingpin.Flag("from", "from address:port").Short('f').String()
 	to       = kingpin.Flag("to", "to address:port").Short('t').String()
-	examples = kingpin.Flag("examples", "show command line example").Bool()
+	examples = kingpin.Flag("examples", "show command line example and then exit").Bool()
+	version  = kingpin.Flag("version", "show version and then exit").Bool()
 
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
@@ -45,7 +47,7 @@ var (
 	loc      = kingpin.Flag("loc", "only accept incoming connections from within a geographic radius given in LAT,LON").Short('l').String()
 	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
 
-	duo = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user").String()
+	duo = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 )
 
 var logger *zap.SugaredLogger
@@ -191,6 +193,13 @@ func main() {
 	signalHandler()
 
 	kingpin.Parse()
+
+	if *version {
+		fmt.Fprintf(os.Stderr, "gofwd, version %s\n", pgmVersion)
+		fmt.Fprintf(os.Stderr, "https://github.com/jftuga/gofwd\n\n")
+		os.Exit(0)
+	}
+
 	if *list {
 		nics()
 		os.Exit(0)
