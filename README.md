@@ -1,5 +1,8 @@
 # gofwd
-A TCP port forwarder with Duo Authentication and Geographic IP integration
+A cross-platform TCP port forwarder with Duo 2FA and Geographic IP integration.
+
+Stand-alone, single-file executables for Windows, MacOS, and Linux can be downloaded from [Releases](https://github.com/jftuga/gofwd/releases).
+
 
 ## Usage
 
@@ -49,18 +52,21 @@ Flags:
 
 ### Basic Setup
 * https://duo.com/
-* `gofwd` will only work with a single Duo account; therefore, only one person will be able to access the resource behind `gofwd`
+* `gofwd` will only work with a single Duo user; therefore, only one person will be able to access the resource behind `gofwd`.
+* * Multiple `gofwd` instantiations can be used for different users.
+* * The .ini configuration file supports multiple users *(see below)*.
 * You will need to create a Duo account.  The free tier supports 10 users.
-* Create a user and set their status to `Require two-factor authentication (default)`
-* * You should also add an email address and phone number
-* Download the Duo app to your mobile device
+* Create a user and set their status to `Require two-factor authentication`. This is the default.
+* * You should also add an email address and phone number.
+* Install the Duo app on to your mobile device.
 
 ### Application Setup
-* On the Duo website, click on Applications
+* On the Duo website, click on Applications.
 * Protect an Application
 * Select `Partner Auth API`
-* Under `Settings`, give your application a name such as `gofwd ssh` or `gofwd rdp`
-* Create a `duo.ini` file with the user name (created under *Basic Setup*), Integration Key, Secret Key, and API HostName
+* Under `Settings`, give your application a name such as `gofwd ssh` or `gofwd rdp`.
+* Create a `duo.ini` file with the **user name** as an ini section heading (created under *Basic Setup*)
+* * Use the **Integration Key**, **Secret Key**, and **API HostName** in your .ini file.
 * * Example: [duo-example.ini](https://github.com/jftuga/gofwd/blob/master/duo-example.ini)
 
 ### Running with Duo
