@@ -13,7 +13,7 @@ errHandler, signalHandler, fwd, tcpStart
 package main
 
 import (
-	"fmt"
+	"errors"
 	"io"
 	"net"
 	"os"
@@ -121,10 +121,14 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
-		remoteGeoIP, _ := getIPInfo(remoteIP) /* FIXME: check the err */
+		remoteGeoIP, err := getIPInfo(remoteIP)
+		if err != nil {
+			logger.Warnf("%s", err)
+			continue
+		}
+
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if len(invalidLocation) > 0 {
-			//errHandler(errors.New(invalidLocation), false)
 			logger.Warnf("%s %s", invalidLocation, distanceCalc)
 			// do not attempt: listener.Close()
 			continue
@@ -143,8 +147,31 @@ func showExamples() {
 	for _, entry := range examples {
 		table.Append(entry)
 	}
-
 	table.Render()
+}
+
+func startDuo() {
+	var duoCred duoCredentials
+	var err error
+	if len(*duo) > 0 {
+		slots := strings.Split(*duo, ":")
+		if len(slots) != 2 {
+			kingpin.FatalUsage("Invalid duo filename / user combination")
+		}
+		duoCred, err = duoReadConfig(slots[0], slots[1])
+
+		var result bool
+		result, err = duoCheck(duoCred)
+		if err != nil {
+			errHandler(err, true)
+			os.Exit(1)
+		}
+		if !result {
+			errHandler(errors.New("Duo Auth returned false"), true)
+			os.Exit(1)
+		}
+		logger.Infof("Duo auth activated for user: %s", duoCred.name)
+	}
 }
 
 func main() {
@@ -159,20 +186,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	var duoCred duoCredentials
-	var err error
-	if len(*duo) > 0 {
-		slots := strings.Split(*duo, ":")
-		if len(slots) != 2 {
-			kingpin.FatalUsage("Invalid duo filename / user combination")
-		}
-		duoCred, err = duoReadConfig(slots[0], slots[1])
-		fmt.Println(duoCred, err)
-		result := duoCheck(duoCred)
-		fmt.Println("duoCheck:", result)
-		os.Exit(0)
-	}
-
 	if !(len(*from) >= 9 && len(*to) >= 9) {
 		kingpin.FatalUsage("Both --from and --to are mandatory")
 		os.Exit(1)
@@ -182,23 +195,33 @@ func main() {
 		os.Exit(1)
 	}
 
-	//FIXME: do not allow -d with any of these: city, region, country
+	if *distance > 0 && (len(*city) > 0 || len(*region) > 0 || len(*country) > 0) {
+		kingpin.FatalUsage("--distance and not be used with any of these: city, region, country; Instead, use --loc with --distance")
+		os.Exit(1)
+	}
+
+	if len(*duo) > 0 {
+		startDuo()
+	}
 
 	loggingHandler()
 	signalHandler()
 
-	var localGeoIP ipInfoResult
-	localGeoIP, _ = getIPInfo("")
-
 	var restrictionsGeoIP ipInfoResult
-
 	restrictionsGeoIP.City = *city
 	restrictionsGeoIP.Region = *region
 	restrictionsGeoIP.Country = *country
 	restrictionsGeoIP.Distance = *distance
 	restrictionsGeoIP.Loc = *loc
-
 	logger.Infof("Geo IP Restrictions: %v", restrictionsGeoIP)
+
+	var localGeoIP ipInfoResult
+	var err error
+	localGeoIP, err = getIPInfo("")
+	if err != nil {
+		errHandler(err, true)
+		os.Exit(1)
+	}
 
 	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP)
 }
