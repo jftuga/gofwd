@@ -22,7 +22,7 @@ build:
         goarch: mips
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}"
-    format: tar.gz
+    format: tar.xz
     format_overrides:
       - goos: windows
         format: zip
