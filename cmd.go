@@ -39,6 +39,8 @@ var (
 	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
 	loc      = kingpin.Flag("loc", "only accept incoming connections from within a geographic radius given in LAT,LON").Short('l').String()
 	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
+
+	duo = kingpin.Flag("duo", "path to duo ini config file").String()
 )
 
 var logger *zap.SugaredLogger
@@ -153,6 +155,11 @@ func main() {
 
 	if *examples {
 		showExamples()
+		os.Exit(0)
+	}
+
+	if len(*duo) > 0 {
+		duoReadConfig(*duo)
 		os.Exit(0)
 	}
 
