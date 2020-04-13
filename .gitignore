@@ -15,3 +15,4 @@
 # vendor/
 dbg.bat
 gofwd
+*.ini
