@@ -98,7 +98,7 @@ func fwd(src net.Conn, remote string, proto string) {
 	}()
 }
 
-func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult) {
+func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials) {
 	proto := "tcp"
 
 	fromAddress, err := net.ResolveTCPAddr(proto, from)
@@ -133,6 +133,18 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 			// do not attempt: listener.Close()
 			continue
 		}
+
+		var allowed bool
+		allowed, err = duoCheck(duoCred)
+		if err != nil {
+			errHandler(err, false)
+			continue
+		}
+		if !allowed {
+			errHandler(errors.New("Duo Auth returned false"), true)
+			continue
+		}
+
 		logger.Infof("[%v] ESTABLISHED; %s", src.RemoteAddr(), distanceCalc)
 		go fwd(src, to, proto)
 	}
@@ -150,28 +162,14 @@ func showExamples() {
 	table.Render()
 }
 
-func startDuo() {
-	var duoCred duoCredentials
-	var err error
-	if len(*duo) > 0 {
-		slots := strings.Split(*duo, ":")
-		if len(slots) != 2 {
-			kingpin.FatalUsage("Invalid duo filename / user combination")
-		}
-		duoCred, err = duoReadConfig(slots[0], slots[1])
-
-		var result bool
-		result, err = duoCheck(duoCred)
-		if err != nil {
-			errHandler(err, true)
-			os.Exit(1)
-		}
-		if !result {
-			errHandler(errors.New("Duo Auth returned false"), true)
-			os.Exit(1)
-		}
-		logger.Infof("Duo auth activated for user: %s", duoCred.name)
+func startDuo(duoFile string, duoUser string) duoCredentials {
+	duoCred, err := duoReadConfig(duoFile, duoUser)
+	if err != nil {
+		errHandler(err, true)
+		os.Exit(1)
 	}
+	logger.Infof("Duo auth activated for user: %s", duoCred.name)
+	return duoCred
 }
 
 func main() {
@@ -200,8 +198,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	var duoCred duoCredentials
 	if len(*duo) > 0 {
-		startDuo()
+		slots := strings.Split(*duo, ":")
+		if len(slots) != 2 {
+			kingpin.FatalUsage("Invalid duo filename / user combination")
+			os.Exit(1)
+		}
+		duoCred = startDuo(slots[0], slots[1])
 	}
 
 	loggingHandler()
@@ -223,5 +227,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP)
+	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP, duoCred)
 }
