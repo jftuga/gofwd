@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/url"
-	"os"
 
 	duoapi "github.com/duosecurity/duo_api_golang"
 	"github.com/duosecurity/duo_api_golang/authapi"
@@ -22,17 +21,26 @@ func duoReadConfig(cfgFile string, name string) (duoCredentials, error) {
 	var err error
 	cfg, err := ini.Load(cfgFile)
 	if err != nil {
-		fmt.Printf("Fail to read file: %v", err)
-		os.Exit(1)
+		err = fmt.Errorf("Fail to read file: %v", err)
+		return duoCred, err
 	}
-	fmt.Println(cfg.SectionStrings())
+
 	sectionType := cfg.Section(name).Key("type").String()
-	fmt.Println("type:", sectionType)
 	if "duo" == sectionType {
 		duoCred.name = name
 		duoCred.integration = cfg.Section(name).Key("integration").String()
 		duoCred.secret = cfg.Section(name).Key("secret").String()
 		duoCred.hostname = cfg.Section(name).Key("hostname").String()
+	}
+
+	if 0 == len(duoCred.name) {
+		err = fmt.Errorf("[%s] Duo Config: Invalid user name", name)
+	} else if len(duoCred.integration) < 15 {
+		err = fmt.Errorf("[%s] Duo Config: Invalid integration", name)
+	} else if len(duoCred.secret) < 15 {
+		err = fmt.Errorf("[%s] Duo Config: Invalid secret", name)
+	} else if len(duoCred.hostname) < 15 {
+		err = fmt.Errorf("[%s] Duo Config: Invalid hostname", name)
 	}
 
 	return duoCred, err
@@ -95,7 +103,6 @@ func duoCheck(duoCred duoCredentials) (bool, error) {
 		success = true
 	}
 
-	fmt.Println("final verdict:", success)
 	if !success {
 		err = fmt.Errorf("Error #230: 'success' is false")
 		return false, err
