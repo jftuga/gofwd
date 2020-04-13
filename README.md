@@ -69,3 +69,13 @@ Flags:
 
 ## Acknowledgments
 Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
+
+Other Go code used:
+
+* Logging: https://go.uber.org/zap
+* Command line arguments: https://gopkg.in/alecthomas/kingpin.v2
+* Output tables: https://github.com/olekukonko/tablewriter
+* Ini file: https://gopkg.in/ini.v1
+* Network interfaces: https://github.com/jftuga/nics
+* IP info: https://github.com/jftuga/ipinfo
+* Duo API: https://github.com/duosecurity/duo_api_golang/authapi
