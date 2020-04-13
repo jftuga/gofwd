@@ -29,17 +29,17 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const pgmVersion = "0.3.0"
+const version = "0.3.0"
 
 // number of seconds to cache a successful Duo authentication
 const duoAuthCacheTime int64 = 120
 
 var (
-	list     = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
-	from     = kingpin.Flag("from", "from address:port").Short('f').String()
-	to       = kingpin.Flag("to", "to address:port").Short('t').String()
-	examples = kingpin.Flag("examples", "show command line example and then exit").Bool()
-	version  = kingpin.Flag("version", "show version and then exit").Bool()
+	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
+	from        = kingpin.Flag("from", "from address:port").Short('f').String()
+	to          = kingpin.Flag("to", "to address:port").Short('t').String()
+	examples    = kingpin.Flag("examples", "show command line example and then exit").Bool()
+	versionOnly = kingpin.Flag("version", "show version and then exit").Bool()
 
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
@@ -194,8 +194,8 @@ func main() {
 
 	kingpin.Parse()
 
-	if *version {
-		fmt.Fprintf(os.Stderr, "gofwd, version %s\n", pgmVersion)
+	if *versionOnly {
+		fmt.Fprintf(os.Stderr, "gofwd, version %s\n", version)
 		fmt.Fprintf(os.Stderr, "https://github.com/jftuga/gofwd\n\n")
 		os.Exit(0)
 	}
