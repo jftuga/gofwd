@@ -45,10 +45,27 @@ Flags:
 +-------------------------------------------------------------------+-------------------------------------------------------------------------+
 ```
 
-## Duo Auth API (work in progress)
-* `gofwd` will only work with a single Duo account.
+## Two Factor Authentication (2FA) via Duo
+
+### Basic Setup
+* https://duo.com/
+* `gofwd` will only work with a single Duo account; therefore, only one person will be able to access the resource behind `gofwd`
 * You will need to create a Duo account.  The free tier supports 10 users.
-* https://duo.com/docs/authapi
+* Create a user and set their status to `Require two-factor authentication (default)`
+* * You should also add an email address and phone number
+* Download the Duo app to your mobile device
+
+### Application Setup
+* On the Duo website, click on Applications
+* Protect an Application
+* Select `Partner Auth API`
+* Under `Settings`, give your application a name such as `gofwd ssh` or `gofwd rdp`
+* Create a `duo.ini` file with the user name (created under *Basic Setup*), Integration Key, Secret Key, and API HostName
+* * Example: [duo-example.ini](https://github.com/jftuga/gofwd/blob/master/duo-example.ini)
+
+### Running with Duo
+* See the *Examples* section to see how to run `gofwd` with duo authentication enabled
+
 
 ## Acknowledgments
 Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
