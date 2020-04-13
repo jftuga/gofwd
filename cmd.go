@@ -13,6 +13,7 @@ errHandler, signalHandler, fwd, tcpStart
 package main
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -40,7 +41,7 @@ var (
 	loc      = kingpin.Flag("loc", "only accept incoming connections from within a geographic radius given in LAT,LON").Short('l').String()
 	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
 
-	duo = kingpin.Flag("duo", "path to duo ini config file").String()
+	duo = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user").String()
 )
 
 var logger *zap.SugaredLogger
@@ -158,8 +159,17 @@ func main() {
 		os.Exit(0)
 	}
 
+	var duoCred duoCredentials
+	var err error
 	if len(*duo) > 0 {
-		duoReadConfig(*duo)
+		slots := strings.Split(*duo, ":")
+		if len(slots) != 2 {
+			kingpin.FatalUsage("Invalid duo filename / user combination")
+		}
+		duoCred, err = duoReadConfig(slots[0], slots[1])
+		fmt.Println(duoCred, err)
+		result := duoCheck(duoCred)
+		fmt.Println("duoCheck:", result)
 		os.Exit(0)
 	}
 

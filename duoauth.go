@@ -10,17 +10,36 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-func duoReadConfig(cfgFile string) {
+type duoCredentials struct {
+	name        string
+	integration string
+	secret      string
+	hostname    string
+}
+
+func duoReadConfig(cfgFile string, name string) (duoCredentials, error) {
+	var duoCred duoCredentials
+	var err error
 	cfg, err := ini.Load(cfgFile)
 	if err != nil {
 		fmt.Printf("Fail to read file: %v", err)
 		os.Exit(1)
 	}
 	fmt.Println(cfg.SectionStrings())
+	sectionType := cfg.Section(name).Key("type").String()
+	fmt.Println("type:", sectionType)
+	if "duo" == sectionType {
+		duoCred.name = name
+		duoCred.integration = cfg.Section(name).Key("integration").String()
+		duoCred.secret = cfg.Section(name).Key("secret").String()
+		duoCred.hostname = cfg.Section(name).Key("hostname").String()
+	}
+
+	return duoCred, err
 }
 
-func duoCheck() bool {
-	duoClient := duoapi.NewDuoApi("integrationKey", "secretKey", "apiHostname", "go-client")
+func duoCheck(duoCred duoCredentials) bool {
+	duoClient := duoapi.NewDuoApi(duoCred.integration, duoCred.secret, duoCred.hostname, "go-client")
 	if duoClient == nil {
 		fmt.Println("Error #100: Failed to create new Duo Api")
 		return false
@@ -48,7 +67,7 @@ func duoCheck() bool {
 		return false
 	}
 
-	duoUser := "duoUser"
+	duoUser := duoCred.name
 	options := []func(*url.Values){authapi.AuthUsername(duoUser)}
 	options = append(options, authapi.AuthDevice("auto"))
 	result, err := duoAuthClient.Auth("push", options...)
