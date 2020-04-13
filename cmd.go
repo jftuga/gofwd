@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.3.0"
+const version = "0.3.1"
 
 // number of seconds to cache a successful Duo authentication
 const duoAuthCacheTime int64 = 120
