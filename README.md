@@ -1,5 +1,5 @@
 # gofwd
-A cross-platform TCP port forwarder with Duo 2FA and Geographic IP integration.
+`gofwd` is a cross-platform TCP port forwarder with Duo 2FA and Geographic IP integration. Its use case is to help protect services when using a VPN is not possible. Before a connection is forwarded, the remote IP address is geographically checked.  If this condition is satisfied, a Duo 2FA request can then be sent to a mobile device. The connection is only forwarded after Duo has verified the user.
 
 Stand-alone, single-file executables for Windows, MacOS, and Linux can be downloaded from [Releases](https://github.com/jftuga/gofwd/releases).
 
