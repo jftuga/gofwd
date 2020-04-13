@@ -29,6 +29,10 @@ archives:
     replacements:
         darwin: macOS
     wrap_in_directory: true
+    files:
+      - LICENSE
+      - README.md
+      - duo-example.ini
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}--sha256_checksums.txt"
 release:
