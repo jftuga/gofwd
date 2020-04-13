@@ -38,21 +38,23 @@ func duoReadConfig(cfgFile string, name string) (duoCredentials, error) {
 	return duoCred, err
 }
 
-func duoCheck(duoCred duoCredentials) bool {
+func duoCheck(duoCred duoCredentials) (bool, error) {
+	var err error
+
 	duoClient := duoapi.NewDuoApi(duoCred.integration, duoCred.secret, duoCred.hostname, "go-client")
 	if duoClient == nil {
-		fmt.Println("Error #100: Failed to create new Duo Api")
-		return false
+		err = fmt.Errorf("Error #100: Failed to create new Duo Api")
+		return false, err
 	}
 	duoAuthClient := authapi.NewAuthApi(*duoClient)
 	check, err := duoAuthClient.Check()
 	if err != nil {
-		fmt.Println("Error #150:", err)
-		return false
+		err = fmt.Errorf("Error #150: %s", err)
+		return false, err
 	}
 	if check == nil {
-		fmt.Println("Error #155: 'check' is nil")
-		return false
+		err = fmt.Errorf("Error #155: 'check' is nil")
+		return false, err
 	}
 
 	var msg, detail string
@@ -63,8 +65,8 @@ func duoCheck(duoCred duoCredentials) bool {
 		detail = *check.StatResult.Message_Detail
 	}
 	if check.StatResult.Stat != "OK" {
-		fmt.Printf("Error #180: Could not connect to Duo: %q (%q)", msg, detail)
-		return false
+		err = fmt.Errorf("Error #180: Could not connect to Duo: %q (%q)", msg, detail)
+		return false, err
 	}
 
 	duoUser := duoCred.name
@@ -72,12 +74,12 @@ func duoCheck(duoCred duoCredentials) bool {
 	options = append(options, authapi.AuthDevice("auto"))
 	result, err := duoAuthClient.Auth("push", options...)
 	if err != nil {
-		fmt.Println("Error #200:", err)
-		return false
+		err = fmt.Errorf("Error #200: %s", err)
+		return false, err
 	}
 	if result == nil {
-		fmt.Println("Error #220: 'result' is nil")
-		return false
+		err = fmt.Errorf("Error #220: 'result' is nil")
+		return false, err
 	}
 
 	if false {
@@ -95,8 +97,9 @@ func duoCheck(duoCred duoCredentials) bool {
 
 	fmt.Println("final verdict:", success)
 	if !success {
-		return false
+		err = fmt.Errorf("Error #230: 'success' is false")
+		return false, err
 	}
 
-	return true
+	return true, nil
 }
