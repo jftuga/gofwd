@@ -10,10 +10,11 @@ import (
 )
 
 type duoCredentials struct {
-	name        string
-	integration string
-	secret      string
-	hostname    string
+	name         string
+	integration  string
+	secret       string
+	hostname     string
+	lastAuthTime int64
 }
 
 func duoReadConfig(cfgFile string, name string) (duoCredentials, error) {
