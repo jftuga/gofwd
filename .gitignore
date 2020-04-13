@@ -16,4 +16,5 @@
 *.bat
 gofwd
 *.ini
+!duo-example.ini
 dist/
