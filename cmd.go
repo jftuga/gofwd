@@ -135,14 +135,19 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		}
 
 		var allowed bool
-		allowed, err = duoCheck(duoCred)
-		if err != nil {
-			errHandler(err, false)
-			continue
-		}
-		if !allowed {
-			errHandler(errors.New("Duo Auth returned false"), true)
-			continue
+		if len(duoCred.name) > 0 {
+			allowed, err = duoCheck(duoCred)
+			if err != nil {
+				errHandler(err, false)
+				logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
+				continue
+			}
+			if !allowed {
+				errHandler(errors.New("Duo Auth returned false"), false)
+				logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
+				continue
+			}
+			logger.Infof("[%v] ACCEPTED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
 		}
 
 		logger.Infof("[%v] ESTABLISHED; %s", src.RemoteAddr(), distanceCalc)
