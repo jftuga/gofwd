@@ -12,7 +12,8 @@ Flags:
   -i, --int                list local interface IP addresses
   -f, --from=FROM          from address:port
   -t, --to=TO              to address:port
-      --examples           show command line example
+      --examples           show command line example and then exit
+      --version            show version and then exit
       --city=CITY          only accept incoming connections that originate from
                            given city
       --region=REGION      only accept incoming connections that originate from
@@ -23,8 +24,8 @@ Flags:
                            geographic radius given in LAT,LON
   -d, --distance=DISTANCE  only accept incoming connections from within the
                            distance (in miles)
-
-
+      --duo=DUO            path to duo ini config file and duo username; format:
+                           filename:user (see --examples)
 ```
 
 ## Examples
