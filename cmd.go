@@ -20,6 +20,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 	"go.uber.org/zap"
@@ -27,7 +28,10 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.2.0"
+const version = "0.3.0"
+
+// number of seconds to cache a successful Duo authentication
+const duoAuthCacheTime int64 = 120
 
 var (
 	list     = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -109,15 +113,12 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 	listener, err := net.ListenTCP(proto, fromAddress)
 	errHandler(err, true)
-
 	defer listener.Close()
 
 	logger.Infof("[%v] Forwarding to [%s] [%s]", fromAddress, proto, toAddress)
-
 	for {
 		src, err := listener.Accept()
 		errHandler(err, true)
-		//logger.Infof("[%v] New connection established", src.RemoteAddr())
 
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
@@ -134,18 +135,26 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 			continue
 		}
 
-		var allowed bool
 		if len(duoCred.name) > 0 {
-			allowed, err = duoCheck(duoCred)
-			if err != nil {
-				errHandler(err, false)
-				logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
-				continue
-			}
-			if !allowed {
-				errHandler(errors.New("Duo Auth returned false"), false)
-				logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
-				continue
+			var allowed bool
+			logger.Infof("[%s] last auth time: %v", duoCred.name, duoCred.lastAuthTime)
+			current := time.Now().Unix()
+			diff := current - duoCred.lastAuthTime
+			if diff <= duoAuthCacheTime {
+				logger.Infof("[%s] last auth time was only %v seconds ago, will not ask again", duoCred.name, diff)
+			} else {
+				allowed, err = duoCheck(duoCred)
+				if err != nil {
+					errHandler(err, false)
+					logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
+					continue
+				}
+				if !allowed {
+					errHandler(errors.New("Duo Auth returned false"), false)
+					logger.Warnf("[%v] DENIED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
+					continue
+				}
+				duoCred.lastAuthTime = time.Now().Unix()
 			}
 			logger.Infof("[%v] ACCEPTED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
 		}
@@ -167,7 +176,7 @@ func showExamples() {
 	table.Render()
 }
 
-func startDuo(duoFile string, duoUser string) duoCredentials {
+func getDuoConfig(duoFile string, duoUser string) duoCredentials {
 	duoCred, err := duoReadConfig(duoFile, duoUser)
 	if err != nil {
 		errHandler(err, true)
@@ -213,7 +222,7 @@ func main() {
 			kingpin.FatalUsage("Invalid duo filename / user combination")
 			os.Exit(1)
 		}
-		duoCred = startDuo(slots[0], slots[1])
+		duoCred = getDuoConfig(slots[0], slots[1])
 	}
 
 	var restrictionsGeoIP ipInfoResult
