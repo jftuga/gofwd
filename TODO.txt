@@ -1,0 +1,68 @@
+add notification when a TCP connection first occurs, but before it is authenticated
+
+Make this message human readable:
+    last auth time: 1586875532
+Using this time format:
+    2020-04-13T22:01:59.609Z
+
+this allows for 'local' mode and works around this problem: remoteGeoIP '192.168.1.1' does not have lat,lon
+
+    cmd.go:
+        133         invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
+        134         if len(invalidLocation) > 98760 {
+        135             logger.Warnf("%s %s", invalidLocation, distanceCalc)
+        136             // do not attempt: listener.Close()
+        137             continue
+        138         }
+    Quick hack: notice the 98760 (instead of just 0)
+
+Give instructions on how to statically compile:
+
+    windows: -tags netgo -ldflags '-H=windowsgui -extldflags "-static"'
+    linux/bsd: -tags netgo -ldflags '-extldflags "-static"'
+    macos: -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
+    android: -ldflags -s
+
+Shorten this message:
+    [47.39.196.123:5639] ESTABLISHED; Current Distance: 2.01; Maximum Distance: 80.00; Difference: 77.99
+To this:
+    [47.39.196.123:5639] ESTABLISHED; Current Dist: 2.01; Max Dist: 80.00; Diff: 77.99
+
+start at boot via cron:
+    crontab -e
+    @reboot $HOME/bin/fwd_runner.sh
+
+    fwd_runner.sh:
+        #!/bin/bash
+        PGM=${HOME}/bin/gofwd
+        LOG=${HOME}/.gofwd.log
+        DUO=${HOME}/bin/duo.ini:jftuga
+
+        while [ 1 ] ; do
+            echo Running gofwd...
+            ${PGM} -f 1.2.3.4:9876 -t 192.168.1.1:22 -l 33.95,-83.383333 -d 80 --duo ${DUO} >> ${LOG} 2>&1
+            echo Sleeping 10 seconds...
+            sleep 10
+        done
+
+chroot
+
+    # statically compile gofwd
+    # linux command:
+    go build -tags netgo -ldflags '-extldflags "-static"'
+    ldd gofwd
+
+    export CHROOT=${HOME}/chr
+    mkdir -p ${CHROOT}/etc/pki/
+    # give full path to gofwd
+    cp bin/gofwd ${CHROOT}
+    # optional, give full path to duo.ini
+    cp bin/duo.ini ${CHROOT}
+    cp /etc/resolv.conf ${CHROOT}/etc/
+    cp -a /etc/pki/ca-trust/ ${CHROOT}/etc/pki/
+    
+    sudo chroot ${CHROOT} /gofwd -f 1.2.3.4:9876 -t 192.168.1.1:22 --duo /duo.ini:testuser
+
+lxc
+
+docker
