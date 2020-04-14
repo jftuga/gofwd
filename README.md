@@ -70,8 +70,8 @@ Flags:
 * * Example: [duo-example.ini](https://github.com/jftuga/gofwd/blob/master/duo-example.ini)
 
 ### Running with Duo
-* See the *Examples* section to see how to run `gofwd` with duo authentication enabled
-* * You will need to add the ``--duo`` comand line option
+* Add the ``--duo`` command line option
+* * See the *Examples* section to see how to run `gofwd` with duo authentication enabled
 
 
 ## Acknowledgments
