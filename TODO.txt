@@ -45,6 +45,10 @@ start at boot via cron:
             sleep 10
         done
 
+implement a --blocklist (file) feature
+    entries could be single addresses or ip networks (one per line)
+    entries beginning with # are comments
+
 chroot
 
     # statically compile gofwd
