@@ -49,7 +49,7 @@ implement a --blocklist (file) feature
     entries could be single addresses or ip networks (one per line)
     entries beginning with # are comments
 
-chroot
+chroot - not recommended as gofwd will now be running as root:
 
     # statically compile gofwd
     # linux command:
@@ -57,13 +57,13 @@ chroot
     ldd gofwd
 
     export CHROOT=${HOME}/chr
-    mkdir -p ${CHROOT}/etc/pki/
+    mkdir -p ${CHROOT}/etc/pki/ca-trust/extracted
     # give full path to gofwd
     cp bin/gofwd ${CHROOT}
     # optional, give full path to duo.ini
     cp bin/duo.ini ${CHROOT}
-    cp /etc/resolv.conf ${CHROOT}/etc/
-    cp -a /etc/pki/ca-trust/ ${CHROOT}/etc/pki/
+    cp -a /etc/resolv.conf ${CHROOT}/etc/
+    cp -a /etc/pki/ca-trust/extracted/ ${CHROOT}/etc/pki/ca-trust/
     
     sudo chroot ${CHROOT} /gofwd -f 1.2.3.4:9876 -t 192.168.1.1:22 --duo /duo.ini:testuser
 
