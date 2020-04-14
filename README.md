@@ -1,5 +1,9 @@
 # gofwd
-`gofwd` is a cross-platform TCP port forwarder with Duo 2FA and Geographic IP integration. Its use case is to help protect services when using a VPN is not possible. Before a connection is forwarded, the remote IP address is geographically checked.  If this condition is satisfied, a Duo 2FA request can then be sent to a mobile device. The connection is only forwarded after Duo has verified the user.
+
+
+## Description
+
+`gofwd` is a cross-platform TCP port forwarder with Duo 2FA and Geographic IP integration. Its use case is to help protect services when using a VPN is not possible. Before a connection is forwarded, the remote IP address is geographically checked against city, region (state), and/or country.  Distance (in miles) can also be used.  If this condition is satisfied, a Duo 2FA request can then be sent to a mobile device. The connection is only forwarded after Duo has verified the user.
 
 Stand-alone, single-file executables for Windows, MacOS, and Linux can be downloaded from [Releases](https://github.com/jftuga/gofwd/releases).
 
@@ -31,6 +35,7 @@ Flags:
                            filename:user (see --examples)
 ```
 
+
 ## Examples
 
 ```
@@ -49,11 +54,12 @@ Flags:
 +-------------------------------------------------------------------+---------------------------------------------------------------------------------+
 ```
 
+
 ## Two Factor Authentication (2FA) via Duo
 
 ### Basic Setup
 * https://duo.com/
-* `gofwd` will only work with a single Duo user; therefore, only one person will be able to access the resource behind `gofwd`.
+* `gofwd` will only work with a single Duo user; therefore, only one person will be able to access the resource residing behind `gofwd`.
 * * Multiple `gofwd` instantiations can be used for different users.
 * * The .ini configuration file supports multiple users *(see below)*.
 * You will need to create a Duo account.  The free tier supports 10 users.
@@ -66,12 +72,13 @@ Flags:
 * Protect an Application
 * Select `Partner Auth API`
 * Under `Settings`, give your application a name such as `gofwd ssh` or `gofwd rdp`.
-* Create a `duo.ini` file with the **user name** as an ini section heading (created under *Basic Setup*)
-* * Use the **Integration Key**, **Secret Key**, and **API HostName** in your .ini file.
+* Create a `duo.ini` file with the **user name** as an ini section heading (the one that you just created under *Basic Setup*)
+* * Use the **Integration Key**, **Secret Key**, and **API HostName** to configure your .ini file.
 * * Example: [duo-example.ini](https://github.com/jftuga/gofwd/blob/master/duo-example.ini)
 
 ### Running with Duo
 * See the *Examples* section to see how to run `gofwd` with duo authentication enabled
+* * You will need to add the ``--duo`` comand line option
 
 
 ## Acknowledgments
