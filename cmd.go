@@ -36,16 +36,16 @@ const duoAuthCacheTime int64 = 120
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
-	from        = kingpin.Flag("from", "from address:port").Short('f').String()
-	to          = kingpin.Flag("to", "to address:port").Short('t').String()
+	from        = kingpin.Flag("from", "from IP address:port").Short('f').String()
+	to          = kingpin.Flag("to", "to IP address:port").Short('t').String()
 	examples    = kingpin.Flag("examples", "show command line example and then exit").Bool()
 	versionOnly = kingpin.Flag("version", "show version and then exit").Bool()
 
 	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
 	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
 	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
-	loc      = kingpin.Flag("loc", "only accept incoming connections from within a geographic radius given in LAT,LON").Short('l').String()
-	distance = kingpin.Flag("distance", "only accept incoming connections from within the distance (in miles)").Short('d').Float64()
+	loc      = kingpin.Flag("loc", "only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)").Short('l').String()
+	distance = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
 
 	duo = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 )
