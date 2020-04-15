@@ -95,7 +95,7 @@ func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restric
 		}
 		miles = HaversineDistance(lat1, lon1, lat2, lon2)
 		milesDiff := math.Abs(miles - restrictionsGeoIP.Distance)
-		distanceCalc = fmt.Sprintf("Current Distance: %.2f; Maximum Distance: %.2f; Difference: %.2f", miles, restrictionsGeoIP.Distance, milesDiff)
+		distanceCalc = fmt.Sprintf("Current Dist: %.2f; Maximum Dist: %.2f; Diff: %.2f", miles, restrictionsGeoIP.Distance, milesDiff)
 	}
 
 	mismatch := ""

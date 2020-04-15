@@ -7,11 +7,6 @@ Give instructions on how to statically compile:
     macos: -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
     android: -ldflags -s
 
-Shorten this message:
-    [47.39.196.123:5639] ESTABLISHED; Current Distance: 2.01; Maximum Distance: 80.00; Difference: 77.99
-To this:
-    [47.39.196.123:5639] ESTABLISHED; Current Dist: 2.01; Max Dist: 80.00; Diff: 77.99
-
 start at boot via cron:
     crontab -e
     @reboot $HOME/bin/fwd_runner.sh
