@@ -125,25 +125,36 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
 		remoteGeoIP, err := getIPInfo(remoteIP)
-		if err != nil {
-			logger.Warnf("%s", err)
-			continue
+		if "127.0.0.1" != remoteIP {
+			if err != nil {
+				logger.Warnf("%s", err)
+				continue
+			}
 		}
 
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
-		if len(invalidLocation) > 0 {
-			logger.Warnf("%s %s", invalidLocation, distanceCalc)
-			// do not attempt: listener.Close()
-			continue
+		if "127.0.0.1" != remoteIP {
+			if len(invalidLocation) > 0 {
+				logger.Warnf("%s %s", invalidLocation, distanceCalc)
+				// do not attempt: listener.Close()
+				continue
+			}
 		}
 
 		if len(duoCred.name) > 0 {
 			var allowed bool
-			logger.Infof("[%s] last auth time: %v", duoCred.name, duoCred.lastAuthTime)
+			lastAuthTime := "(never)"
+			cachedDuoAuth := ""
+			if duoCred.lastAuthTime > 0 {
+				lastAuthTime = fmt.Sprintf("%v", time.Unix(duoCred.lastAuthTime, 0))
+			}
+			logger.Infof("[%s] last auth time: %v", duoCred.name, lastAuthTime)
+
 			current := time.Now().Unix()
 			diff := current - duoCred.lastAuthTime
 			if diff <= duoAuthCacheTime {
 				logger.Infof("[%s] last auth time was only %v seconds ago, will not ask again", duoCred.name, diff)
+				cachedDuoAuth = " CACHED"
 			} else {
 				allowed, err = duoCheck(duoCred)
 				if err != nil {
@@ -158,7 +169,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 				}
 				duoCred.lastAuthTime = time.Now().Unix()
 			}
-			logger.Infof("[%v] ACCEPTED; Duo Auth for user: %s", src.RemoteAddr(), duoCred.name)
+			logger.Infof("[%v] ACCEPTED%s; Duo Auth for user: %s", src.RemoteAddr(), cachedDuoAuth, duoCred.name)
 		}
 
 		logger.Infof("[%v] ESTABLISHED; %s", src.RemoteAddr(), distanceCalc)

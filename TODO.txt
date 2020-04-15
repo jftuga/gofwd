@@ -1,21 +1,5 @@
 add notification when a TCP connection first occurs, but before it is authenticated
 
-Make this message human readable:
-    last auth time: 1586875532
-Using this time format:
-    2020-04-13T22:01:59.609Z
-
-this allows for 'local' mode and works around this problem: remoteGeoIP '192.168.1.1' does not have lat,lon
-
-    cmd.go:
-        133         invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
-        134         if len(invalidLocation) > 98760 {
-        135             logger.Warnf("%s %s", invalidLocation, distanceCalc)
-        136             // do not attempt: listener.Close()
-        137             continue
-        138         }
-    Quick hack: notice the 98760 (instead of just 0)
-
 Give instructions on how to statically compile:
 
     windows: -tags netgo -ldflags '-H=windowsgui -extldflags "-static"'
@@ -48,6 +32,8 @@ start at boot via cron:
 implement a --blocklist (file) feature
     entries could be single addresses or ip networks (one per line)
     entries beginning with # are comments
+
+implement a --duo-cache time instead of hard-coding 120 seconds
 
 chroot - not recommended as gofwd will now be running as root:
 
