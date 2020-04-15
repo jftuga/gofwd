@@ -45,7 +45,7 @@ var (
 	distance = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
 
 	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
-	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication").Default("120").Int64()
+	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication (default is 120)").Default("120").Int64()
 )
 
 var logger *zap.SugaredLogger
