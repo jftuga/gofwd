@@ -29,10 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.3.2"
-
-// number of seconds to cache a successful Duo authentication
-const duoAuthCacheTime int64 = 120
+const version = "0.4.0"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -47,7 +44,8 @@ var (
 	loc      = kingpin.Flag("loc", "only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)").Short('l').String()
 	distance = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
 
-	duo = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
+	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
+	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication").Default("120").Int64()
 )
 
 var logger *zap.SugaredLogger
@@ -104,7 +102,7 @@ func fwd(src net.Conn, remote string, proto string) {
 	}()
 }
 
-func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials) {
+func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials, duoAuthCacheTime int64) {
 	proto := "tcp"
 
 	fromAddress, err := net.ResolveTCPAddr(proto, from)
@@ -189,13 +187,13 @@ func showExamples() {
 	table.Render()
 }
 
-func getDuoConfig(duoFile string, duoUser string) duoCredentials {
+func getDuoConfig(duoFile string, duoUser string, duoAuthCacheTime int64) duoCredentials {
 	duoCred, err := duoReadConfig(duoFile, duoUser)
 	if err != nil {
 		errHandler(err, true)
 		os.Exit(1)
 	}
-	logger.Infof("Duo auth activated for user: %s", duoCred.name)
+	logger.Infof("Duo auth activated for user: %s; cache time: %v seconds", duoCred.name, duoAuthCacheTime)
 	return duoCred
 }
 
@@ -242,7 +240,7 @@ func main() {
 			kingpin.FatalUsage("Invalid duo filename / user combination")
 			os.Exit(1)
 		}
-		duoCred = getDuoConfig(slots[0], slots[1])
+		duoCred = getDuoConfig(slots[0], slots[1], *duoAuthCacheTime)
 	}
 
 	var restrictionsGeoIP ipInfoResult
@@ -261,5 +259,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP, duoCred)
+	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP, duoCred, *duoAuthCacheTime)
 }

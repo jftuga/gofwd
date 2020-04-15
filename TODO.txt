@@ -28,8 +28,6 @@ implement a --blocklist (file) feature
     entries could be single addresses or ip networks (one per line)
     entries beginning with # are comments
 
-implement a --duo-cache time instead of hard-coding 120 seconds
-
 chroot - not recommended as gofwd will now be running as root:
 
     # statically compile gofwd
