@@ -122,6 +122,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 		slots := strings.Split(src.RemoteAddr().String(), ":")
 		remoteIP := slots[0]
+		logger.Infof("[%v] Incoming connection initiated", remoteIP)
 		remoteGeoIP, err := getIPInfo(remoteIP)
 		if "127.0.0.1" != remoteIP {
 			if err != nil {
