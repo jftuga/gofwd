@@ -1,4 +1,9 @@
-add notification when a TCP connection first occurs, but before it is authenticated
+
+implement a --blocklist (file) feature
+    entries could be single addresses or ip networks (one per line)
+    entries beginning with # are comments
+
+_____________________________________________________________________
 
 Give instructions on how to statically compile:
 
@@ -6,6 +11,8 @@ Give instructions on how to statically compile:
     linux/bsd: -tags netgo -ldflags '-extldflags "-static"'
     macos: -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
     android: -ldflags -s
+
+_____________________________________________________________________
 
 start at boot via cron:
     crontab -e
@@ -23,10 +30,7 @@ start at boot via cron:
             echo Sleeping 10 seconds...
             sleep 10
         done
-
-implement a --blocklist (file) feature
-    entries could be single addresses or ip networks (one per line)
-    entries beginning with # are comments
+_____________________________________________________________________
 
 chroot - not recommended as gofwd will now be running as root:
 
@@ -46,6 +50,11 @@ chroot - not recommended as gofwd will now be running as root:
     
     sudo chroot ${CHROOT} /gofwd -f 1.2.3.4:9876 -t 192.168.1.1:22 --duo /duo.ini:testuser
 
+_____________________________________________________________________
+
 lxc
 
+_____________________________________________________________________
+
 docker
+
