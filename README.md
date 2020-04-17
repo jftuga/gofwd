@@ -91,13 +91,14 @@ Flags:
 * * * etc/ssl/certs/ca-bundle.cr
 * * * etc/ssl/certs/ca-bundle.trust.crt
 * To run the built image: [docker_start_gofwd.sh](https://github.com/jftuga/gofwd/blob/master/docker_start_gofwd.sh) *(Edit first)*
+* To use `gofwd.exe` in Docker, consider using the [Microsoft Windows Nano Server](https://hub.docker.com/_/microsoft-windows-nanoserver) for containers.
 
 ### Static Compilation
 * Your version of `gofwd` will need to be statically compiled:
 
 | Platform | Command
 ----------|-----
-| windows | go build -tags netgo -ldflags "-H=windowsgui -extldflags -static"
+| windows | go build -tags netgo -ldflags "-extldflags -static"
 | linux/bsd | go build -tags netgo -ldflags '-extldflags "-static" -s -w'
 | macos | go build -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
 | android | go build -ldflags -s
