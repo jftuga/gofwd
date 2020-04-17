@@ -33,19 +33,19 @@ Flags:
 ## Examples
 
 ```
-+-------------------------------------------------------------------+---------------------------------------------------------------------------------+
-|                              EXAMPLE                              |                                     COMMAND                                     |
-+-------------------------------------------------------------------+---------------------------------------------------------------------------------+
-| get the local IP address *(run this first)*, eg: 1.2.3.4          | gofwd -i                                                                        |
-| forward from a bastion host to an internal server                 | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22                                       |
-| allow only if the remote IP is within 50 miles of this host       | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -d 50                                 |
-| allow only if remote IP is located in Denver, CO                  | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -city Denver -region Colorado         |
-| allow only if remote IP is located in Canada                      | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -country CA                           |
-| allow only if remote IP is located within 75 miles of Atlanta, GA | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 -l 33.756529,-84.400996 -d 75         |
-|     to get Latitude, Longitude use https://www.latlong.net/       |                                                                                 |
-| allow only for a successful two-factor duo auth for 'testuser'    | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 --duo duo.ini:testuser                |
-| allow only after both Geo IP and Duo are verified                 | gofwd -f 1.2.3.4:22 -t 192.168.192.1.1:22 --region Texas --duo duo.ini:testuser |
-+-------------------------------------------------------------------+---------------------------------------------------------------------------------+
++-------------------------------------------------------------------+-----------------------------------------------------------------------------+
+|                              EXAMPLE                              |                                  COMMAND                                    |
++-------------------------------------------------------------------+-----------------------------------------------------------------------------+
+| get the local IP address *(run this first)*, eg: 1.2.3.4          | gofwd -i                                                                    |
+| forward from a bastion host to an internal server                 | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22                                       |
+| allow only if the remote IP is within 50 miles of this host       | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 -d 50                                 |
+| allow only if remote IP is located in Denver, CO                  | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 -city Denver -region Colorado         |
+| allow only if remote IP is located in Canada                      | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 -country CA                           |
+| allow only if remote IP is located within 75 miles of Atlanta, GA | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 -l 33.756529,-84.400996 -d 75         |
+|     to get Latitude, Longitude use https://www.latlong.net/       |                                                                             |
+| allow only for a successful two-factor duo auth for 'testuser'    | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --duo duo.ini:testuser                |
+| allow only after both Geo IP and Duo are verified                 | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --region Texas --duo duo.ini:testuser |
++-------------------------------------------------------------------+-----------------------------------------------------------------------------+
 ```
 
 
@@ -74,6 +74,29 @@ Flags:
 * Add the ``--duo`` command line option
 * * See the *Examples* section to see how to run `gofwd` with duo authentication enabled
 
+## Docker
+* Your image will need to include these files used for DNS resolution
+* * etc/ssl/certs/ca-bundle.cr
+* * etc/ssl/certs/ca-bundle.trust.crt
+
+* Your version of `gofwd` will need to be statically compiled:
+
+| Platform | Command
+----------|-----
+| windows | go build -tags netgo -ldflags "-H=windowsgui -extldflags -static"
+| linux/bsd | go build -tags netgo -ldflags '-extldflags "-static" -s -w'
+| macos | go build -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
+| android | go build -ldflags -s
+
+## Docker Example
+* external service is `1.2.3.4` on port `4567`
+* internal service is `192.168.1.1` on port `22`
+* ini file is located on the host here: `/home/ec2-user/duo.ini`
+* ini file is mounted inside the container here: `/duo.ini`
+* duo user name is: `jftuga`
+```
+docker run --rm -v /home/ec2-user/duo.ini:/duo.ini jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 --duo /duo.ini:jftuga
+```
 
 ## Acknowledgments
 Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
