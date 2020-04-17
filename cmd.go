@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.4.1"
+const version = "0.5.0"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -46,6 +46,7 @@ var (
 
 	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication (default is 120)").Default("120").Int64()
+	private          = kingpin.Flag("private", "allow RFC1918 private addresses for the remote IP").Bool()
 )
 
 var logger *zap.SugaredLogger
@@ -86,6 +87,25 @@ func loggingHandler() {
 	logger = loggerPlain.Sugar()
 }
 
+// IsPrivateIPv4 https://gist.github.com/r4um/5986319
+func isPrivateIPv4(s string) bool {
+	var rfc1918 []string = []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}
+	var ip net.IP = net.ParseIP(s)
+
+	if ip == nil {
+		return false
+	}
+
+	for _, cidr := range rfc1918 {
+		_, net, _ := net.ParseCIDR(cidr)
+		if net.Contains(ip) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func fwd(src net.Conn, remote string, proto string) {
 	dst, err := net.Dial(proto, remote)
 	errHandler(err, false)
@@ -102,7 +122,7 @@ func fwd(src net.Conn, remote string, proto string) {
 	}()
 }
 
-func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials, duoAuthCacheTime int64) {
+func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials, duoAuthCacheTime int64, allowPrivateIP bool) {
 	proto := "tcp"
 
 	fromAddress, err := net.ResolveTCPAddr(proto, from)
@@ -125,6 +145,10 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		logger.Infof("[%v] Incoming connection initiated", remoteIP)
 		remoteGeoIP, err := getIPInfo(remoteIP)
 		if "127.0.0.1" != remoteIP {
+			if allowPrivateIP && isPrivateIPv4(remoteIP) {
+				logger.Infof("[%s] allowing private IPv4 address", remoteGeoIP)
+				err = nil
+			}
 			if err != nil {
 				logger.Warnf("%s", err)
 				continue
@@ -133,6 +157,10 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if "127.0.0.1" != remoteIP {
+			if allowPrivateIP && isPrivateIPv4(remoteIP) {
+				logger.Infof("[%s] allowing private IPv4 address", remoteGeoIP)
+				invalidLocation = ""
+			}
 			if len(invalidLocation) > 0 {
 				logger.Warnf("%s %s", invalidLocation, distanceCalc)
 				// do not attempt: listener.Close()
@@ -261,5 +289,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP, duoCred, *duoAuthCacheTime)
+	tcpStart(*from, *to, localGeoIP, restrictionsGeoIP, duoCred, *duoAuthCacheTime, *private)
 }
