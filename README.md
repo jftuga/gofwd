@@ -14,19 +14,28 @@ Stand-alone, single-file executables for Windows, MacOS, and Linux can be downlo
 usage: gofwd [<flags>]
 
 Flags:
-      --help                Show context-sensitive help (also try --help-long and --help-man).
+      --help                Show context-sensitive help (also try --help-long
+                            and --help-man).
   -i, --int                 list local interface IP addresses
   -f, --from=FROM           from IP address:port
   -t, --to=TO               to IP address:port
       --examples            show command line example and then exit
       --version             show version and then exit
-      --city=CITY           only accept incoming connections that originate from given city
-      --region=REGION       only accept incoming connections that originate from given region (eg: state)
-      --country=COUNTRY     only accept incoming connections that originate from given 2 letter country abbreviation
-  -l, --loc=LOC             only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)
+      --city=CITY           only accept incoming connections that originate from
+                            given city
+      --region=REGION       only accept incoming connections that originate from
+                            given region (eg: state)
+      --country=COUNTRY     only accept incoming connections that originate from
+                            given 2 letter country abbreviation
+  -l, --loc=LOC             only accept from within a geographic radius; format:
+                            LATITUDE,LONGITUDE (use with --distance)
   -d, --distance=DISTANCE   only accept from within a given distance (in miles)
-      --duo=DUO             path to duo ini config file and duo username; format: filename:user (see --examples)
-      --duo-cache-time=120  number of seconds to cache a successful Duo authentication (default is 120)
+      --duo=DUO             path to duo ini config file and duo username;
+                            format: filename:user (see --examples)
+      --duo-cache-time=120  number of seconds to cache a successful Duo
+                            authentication (default is 120)
+  -p, --private             allow RFC1918 private addresses for the remote IP
+
 ```
 
 
