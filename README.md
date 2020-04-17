@@ -84,10 +84,15 @@ Flags:
 * * See the *Examples* section to see how to run `gofwd` with duo authentication enabled
 
 ## Docker
-* Your image will need to include these files used for DNS resolution
-* * etc/ssl/certs/ca-bundle.cr
-* * etc/ssl/certs/ca-bundle.trust.crt
 
+### Example Helper Scripts
+* To build an image: [docker_build_image.sh](https://github.com/jftuga/gofwd/blob/master/docker_build_image.sh)
+* * Your image will need to include these files used for DNS resolution:
+* * * etc/ssl/certs/ca-bundle.cr
+* * * etc/ssl/certs/ca-bundle.trust.crt
+* To run the built image: [docker_start_gofwd.sh](https://github.com/jftuga/gofwd/blob/master/docker_start_gofwd.sh) *(Edit first)*
+
+### Static Compilation
 * Your version of `gofwd` will need to be statically compiled:
 
 | Platform | Command
@@ -119,7 +124,7 @@ docker run -d --restart unless-stopped -p 4567:4567
 | internal service is `192.168.1.1` on port `22` | -t 192.168.1.1:22
 | duo config file is mounted within the container | --duo `/duo.ini`:jftuga
 | duo user name | --duo /duo.ini:`jftuga`
-| location: Denver, CO with coordinates of | -l `39.858706,-104.670732`
+| location: Denver, CO with coordinates of | -l 39.858706,-104.670732
 | distance: `80 miles` from Denver | -d 80
 
 
