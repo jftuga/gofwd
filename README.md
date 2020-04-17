@@ -136,3 +136,4 @@ Other Go code used:
 
 ## Future Work
 * [Run the Docker daemon as a non-root user - Rootless Mode](https://docs.docker.com/engine/security/rootless/)
+* [Docker Tips: Running a Container With a Non Root User](https://medium.com/better-programming/running-a-container-with-a-non-root-user-e35830d1f42a)
