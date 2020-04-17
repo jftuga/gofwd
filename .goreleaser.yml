@@ -6,6 +6,11 @@ builds:
     goos:
     - linux
     - freebsd
+    goarch:
+      - amd64
+      - arm
+    goarm:
+      - 7
     flags:
       - -tags=netgo
     ldflags:
@@ -18,7 +23,8 @@ builds:
       - goos: linux
         goarch: 386
       - goos: freebsd
-        goarch: 386
+        goarch: arm
+        goarm: 7
       - goos: windows
         goarch: 386
 
