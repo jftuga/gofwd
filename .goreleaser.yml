@@ -53,7 +53,7 @@ builds:
     flags:
       - -tags=netgo
     ldflags:
-      - -H=windowsgui -extldflags -static -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+      - -extldflags -static -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
     env:
       - CGO_ENABLED=0
     ignore:
