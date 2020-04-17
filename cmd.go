@@ -46,7 +46,7 @@ var (
 
 	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication (default is 120)").Default("120").Int64()
-	private          = kingpin.Flag("private", "allow RFC1918 private addresses for the remote IP").Bool()
+	private          = kingpin.Flag("private", "allow RFC1918 private addresses for the remote IP").Short('p').Bool()
 )
 
 var logger *zap.SugaredLogger
@@ -146,7 +146,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		remoteGeoIP, err := getIPInfo(remoteIP)
 		if "127.0.0.1" != remoteIP {
 			if allowPrivateIP && isPrivateIPv4(remoteIP) {
-				logger.Infof("[%s] allowing private IPv4 address", remoteGeoIP)
+				logger.Infof("[%v] allowing private IPv4 address", remoteIP)
 				err = nil
 			}
 			if err != nil {
@@ -158,7 +158,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if "127.0.0.1" != remoteIP {
 			if allowPrivateIP && isPrivateIPv4(remoteIP) {
-				logger.Infof("[%s] allowing private IPv4 address", remoteGeoIP)
+				logger.Infof("[%v] allowing private IPv4 address", remoteIP)
 				invalidLocation = ""
 			}
 			if len(invalidLocation) > 0 {
