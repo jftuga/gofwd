@@ -5,34 +5,7 @@ implement a --blocklist (file) feature
 
 _____________________________________________________________________
 
-Give instructions on how to statically compile:
-
-    windows: -tags netgo -ldflags '-H=windowsgui -extldflags "-static"'
-    linux/bsd: -tags netgo -ldflags '-extldflags "-static"'
-    macos: -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
-    android: -ldflags -s
-
-_____________________________________________________________________
-
-start at boot via cron:
-    crontab -e
-    @reboot $HOME/bin/fwd_runner.sh
-
-    fwd_runner.sh:
-        #!/bin/bash
-        PGM=${HOME}/bin/gofwd
-        LOG=${HOME}/.gofwd.log
-        DUO=${HOME}/bin/duo.ini:jftuga
-
-        while [ 1 ] ; do
-            echo Running gofwd...
-            ${PGM} -f 1.2.3.4:9876 -t 192.168.1.1:22 -l 33.95,-83.383333 -d 80 --duo ${DUO} >> ${LOG} 2>&1
-            echo Sleeping 10 seconds...
-            sleep 10
-        done
-_____________________________________________________________________
-
-chroot - not recommended as gofwd will now be running as root:
+chroot
 
     # statically compile gofwd
     # linux command:
@@ -49,12 +22,4 @@ chroot - not recommended as gofwd will now be running as root:
     cp -a /etc/pki/ca-trust/extracted/ ${CHROOT}/etc/pki/ca-trust/
     
     sudo chroot ${CHROOT} /gofwd -f 1.2.3.4:9876 -t 192.168.1.1:22 --duo /duo.ini:testuser
-
-_____________________________________________________________________
-
-lxc
-
-_____________________________________________________________________
-
-docker
 
