@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.5.0"
+const version = "0.5.1"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -261,6 +261,7 @@ func main() {
 		kingpin.FatalUsage("--distance and not be used with any of these: city, region, country; Instead, use --loc with --distance")
 		os.Exit(1)
 	}
+	logger.Infof("gofwd, version %v started", version)
 
 	var duoCred duoCredentials
 	if len(*duo) > 0 {
@@ -271,7 +272,6 @@ func main() {
 		}
 		duoCred = getDuoConfig(slots[0], slots[1], *duoAuthCacheTime)
 	}
-	logger.Infof("gofwd, version %v started", version)
 
 	var restrictionsGeoIP ipInfoResult
 	restrictionsGeoIP.City = *city
