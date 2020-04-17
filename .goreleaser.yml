@@ -1,39 +1,94 @@
-project_name: gofwd
-build:
-  main: .
-  binary: gofwd
-  env:
-    - CGO_ENABLED=0
-  goos:
-    - darwin
+# goreleaser.yaml file for gofwd
+
+builds:
+  -
+    id: "alpha"
+    goos:
     - linux
-    - windows
     - freebsd
-  goarch:
-    - amd64
-    - arm
-  goarm:
-      - 6
-      - 7
-  ignore:
+    flags:
+      - -tags=netgo
+    ldflags:
+     - -extldflags "-static" -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+    env:
+      - CGO_ENABLED=0
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: 386
       - goos: freebsd
-        goarch: arm
+        goarch: 386
+      - goos: windows
+        goarch: 386
+
+  -
+    id: "beta"
+    goos:
+    - darwin
+    ldflags:
+      - -s -extldflags "-sectcreate __TEXT __info_plist Info.plist" -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+    env:
+      - CGO_ENABLED=0
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: 386
       - goos: freebsd
-        goarch: mips
+        goarch: 386
+      - goos: windows
+        goarch: 386
+
+  -
+    id: "gamma"
+    goos:
+    - windows
+    flags:
+      - -tags=netgo
+    ldflags:
+      - -H=windowsgui -extldflags -static -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+    env:
+      - CGO_ENABLED=0
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: 386
+      - goos: freebsd
+        goarch: 386
+      - goos: windows
+        goarch: 386
+
+
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}"
+  -
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
     format: tar.xz
     format_overrides:
       - goos: windows
         format: zip
     replacements:
-        darwin: macOS
+      darwin: MacOS
+      linux: Linux
+      freebsd: FreeBSD
+      windows: Windows
+      amd64: x86_64
     wrap_in_directory: true
     files:
       - LICENSE
       - README.md
       - duo-example.ini
+      - docker_build_image.sh
+      - docker_start_gofwd.sh
+      
 checksum:
-  name_template: "{{ .ProjectName }}_{{ .Version }}--sha256_checksums.txt"
+  name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"
 release:
   draft: true
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
