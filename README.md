@@ -125,6 +125,11 @@ docker run -d --restart unless-stopped -p 4567:4567
 
 **Note:** if you are running in a NAT environment, such as AWS, then you will need to append the `-p` option to allow RFC1918 private IPv4 addresses.
 
+
+## chroot environment
+* Please review chroot_start_gofwd.sh
+
+
 ## Acknowledgments
 Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
 
