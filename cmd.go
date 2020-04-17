@@ -146,7 +146,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		remoteGeoIP, err := getIPInfo(remoteIP)
 		if "127.0.0.1" != remoteIP {
 			if allowPrivateIP && isPrivateIPv4(remoteIP) {
-				logger.Infof("[%v] allowing private IPv4 address", remoteIP)
+				logger.Infof("[%v] allowing private IPv4 address, skip lat,lon checks", remoteIP)
 				err = nil
 			}
 			if err != nil {
@@ -158,7 +158,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if "127.0.0.1" != remoteIP {
 			if allowPrivateIP && isPrivateIPv4(remoteIP) {
-				logger.Infof("[%v] allowing private IPv4 address", remoteIP)
+				logger.Infof("[%v] allowing private IPv4 address, skip loc,dist checks", remoteIP)
 				invalidLocation = ""
 			}
 			if len(invalidLocation) > 0 {
