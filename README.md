@@ -100,6 +100,13 @@ Flags:
 **NOTE:** *I have not been able to test all of these*
 
 ## Docker Example
+```
+docker run -d --restart unless-stopped -p 4567:4567
+    -v /home/ec2-user/duo.ini:/duo.ini \
+    jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 \
+    --duo /duo.ini:jftuga -l `39.858706,-104.670732` -d 80
+```
+
 | Explanation | Parameter |
 --------------|------------
 | detach and run Docker in daemon mode | -d
@@ -114,12 +121,7 @@ Flags:
 | duo user name | --duo /duo.ini:`jftuga`
 | location: Denver, CO with coordinates of | -l `39.858706,-104.670732`
 | distance: `80 miles` from Denver | -d 80
-```
-docker run -d --restart unless-stopped -p 4567:4567
-    -v /home/ec2-user/duo.ini:/duo.ini \
-    jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 \
-    --duo /duo.ini:jftuga -l `39.858706,-104.670732` -d 80
-```
+
 
 **Note:** if you are running in a NAT environment, such as AWS, then you will need to append the `-p` option to allow RFC1918 private IPv4 addresses.
 
