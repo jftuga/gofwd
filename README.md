@@ -89,14 +89,28 @@ Flags:
 | android | go build -ldflags -s
 
 ## Docker Example
-* external service is `1.2.3.4` on port `4567`
-* internal service is `192.168.1.1` on port `22`
-* ini file is located on the host here: `/home/ec2-user/duo.ini`
-* ini file is mounted inside the container here: `/duo.ini`
-* duo user name is: `jftuga`
+| Explanation | Parameter |
+--------------|------------
+| detach and run Docker in daemon mode | -d
+| restart container unless explicitly stopped | --restart unless-stopped
+| redirect external TCP port to internal TCP port | -p 4567:4567
+| ini file is located on the host here: `/home/ec2-user/duo.ini` | -v `/home/ec2-user/duo.ini`:/duo.ini
+| ini file is mounted inside the container here: `/duo.ini` | -v /home/ec2-user/duo.ini:/`duo.ini`
+| container name and tag | jftuga:gofwd:v050.1
+| external service is `1.2.3.4` on port `4567` | -f 1.2.3.4:4567 
+| internal service is `192.168.1.1` on port `22` | -t 192.168.1.1:22
+| duo config file is mounted within the container | --duo `/duo.ini`:jftuga
+| duo user name | --duo /duo.ini:`jftuga`
+| location: Denver, CO with coordinates of | -l `39.858706,-104.670732`
+| distance: `80 miles` from Denver | -d 80
 ```
-docker run --rm -v /home/ec2-user/duo.ini:/duo.ini jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 --duo /duo.ini:jftuga
+docker run -d --restart unless-stopped -p 4567:4567
+    -v /home/ec2-user/duo.ini:/duo.ini \
+    jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 \
+    --duo /duo.ini:jftuga -l `39.858706,-104.670732` -d 80
 ```
+
+**Note:** if you are running in a NAT environment, such as AWS, then you will need to append the `-p` option to allow RFC1918 private IPv4 addresses.
 
 ## Acknowledgments
 Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
@@ -110,3 +124,6 @@ Other Go code used:
 * Network interfaces: https://github.com/jftuga/nics
 * IP info: https://github.com/jftuga/ipinfo
 * Duo API: https://github.com/duosecurity/duo_api_golang/authapi
+
+## Future Work
+* [Run the Docker daemon as a non-root user - Rootless Mode](https://docs.docker.com/engine/security/rootless/)
