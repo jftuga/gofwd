@@ -15,6 +15,7 @@ type duoCredentials struct {
 	secret       string
 	hostname     string
 	lastAuthTime int64
+	lastIP       string
 }
 
 func duoReadConfig(cfgFile string, name string) (duoCredentials, error) {

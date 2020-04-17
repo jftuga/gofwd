@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.5.1"
+const version = "0.5.2"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -179,7 +179,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 
 			current := time.Now().Unix()
 			diff := current - duoCred.lastAuthTime
-			if diff <= duoAuthCacheTime {
+			if diff <= duoAuthCacheTime && duoCred.lastIP == remoteIP {
 				logger.Infof("[%s] last auth time was only %v seconds ago, will not ask again", duoCred.name, diff)
 				cachedDuoAuth = " CACHED"
 			} else {
@@ -195,6 +195,7 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 					continue
 				}
 				duoCred.lastAuthTime = time.Now().Unix()
+				duoCred.lastIP = remoteIP
 			}
 			logger.Infof("[%v] ACCEPTED%s; Duo Auth for user: %s", src.RemoteAddr(), cachedDuoAuth, duoCred.name)
 		}
