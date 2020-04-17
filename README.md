@@ -97,6 +97,8 @@ Flags:
 | macos | go build -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
 | android | go build -ldflags -s
 
+**NOTE:** *I have not been able to test all of these*
+
 ## Docker Example
 | Explanation | Parameter |
 --------------|------------
