@@ -87,6 +87,8 @@ archives:
       - duo-example.ini
       - docker_build_image.sh
       - docker_start_gofwd.sh
+      - Dockerfile
+      - ssl/
       
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}--checksums.txt"
