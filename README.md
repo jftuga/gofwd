@@ -134,7 +134,7 @@ docker run -d --restart unless-stopped -p 4567:4567
 
 
 ## chroot environment
-* Please review chroot_start_gofwd.sh
+* Please review [chroot_start_gofwd.sh](https://github.com/jftuga/gofwd/blob/master/chroot_start_gofwd.sh)
 
 
 ## Acknowledgments
