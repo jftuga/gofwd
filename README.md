@@ -91,9 +91,10 @@ Flags:
 * * * etc/ssl/certs/ca-bundle.cr
 * * * etc/ssl/certs/ca-bundle.trust.crt
 * To run the built image: [docker_start_gofwd.sh](https://github.com/jftuga/gofwd/blob/master/docker_start_gofwd.sh) *(Edit first)*
-* To use `gofwd.exe` in Docker, consider using the [Microsoft Windows Nano Server](https://hub.docker.com/_/microsoft-windows-nanoserver) for containers.
+* To use `gofwd.exe` in Docker under Windows, consider using the [Microsoft Windows Nano Server](https://hub.docker.com/_/microsoft-windows-nanoserver) for containers.
+* To use `gofwd` in Docker under Linux, consider using the [Scratch](https://hub.docker.com/_/scratch) for the container.
 
-### Static Compilation
+### Static Compilation - Docker Only
 * Your version of `gofwd` will need to be statically compiled:
 
 | Platform | Command
