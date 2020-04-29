@@ -8,6 +8,20 @@
 Stand-alone, single-file executables for Windows, MacOS, and Linux can be downloaded from [Releases](https://github.com/jftuga/gofwd/releases).
 
 
+## Use case
+
+The standard `Duo 2FA` Windows RDP implementation issues the the second factor request after a RDP client has connected and issued a valid username / password combination.  The RDP port is always open to the Internet, which is a potential security issue.
+
+`gofwd` uses `Duo 2FA` *before* forwarding the RDP connection to an internal system.  The big caveat with `gofwd` is that it only works well in single-user scenarios.  However, being able to access your home lab remotely fits in well with this.
+
+`gofwd` can also be uses to protect SSH such as an AWS EC2 instance or Digital Ocean Droplet.
+
+Both RDP to a home computer and remote SSH access work reliably well.  On a home network, `gofwd` can be run on a Raspberry Pi that forwards the connection to a Windows 10 system once Duo authentication is successful.  It can also run from within a Docker container for added security.
+
+The Geo-IP feature is nice because it limits who can initiate a `Duo 2FA` request. If someone tries to connect to your RDP port but is not within the defined geo-ip fence, then a `Duo 2FA` will not be sent to your phone.  **Running on a non-standard port for RDP is recommended to limit the number of 2FA requests.**
+
+ For example, you could use an 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.
+
 ## Usage
 
 ```
@@ -138,7 +152,8 @@ docker run -d --restart unless-stopped -p 4567:4567
 
 
 ## Acknowledgments
-Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
+* Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
+* `gofwd`uses https://ipinfo.io/ to get Geo IP information in real time
 
 Other Go code used:
 
