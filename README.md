@@ -22,6 +22,8 @@ The Geo-IP feature is nice because it limits who can initiate a `Duo 2FA` reques
 
  For example, you could use an 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.
 
+The overall elegance of this solution is that no additional software is needed.  As long as you are within your predefined geo-ip location, have your phone, and know your hostname/ip address (and port number), then you will be able to access your system remotely.
+
 ## Usage
 
 ```
