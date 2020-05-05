@@ -3,23 +3,9 @@ implement a --blocklist (file) feature
     entries could be single addresses or ip networks (one per line)
     entries beginning with # are comments
 
-_____________________________________________________________________
+____________________________________
 
-chroot
+Add section to README.md:
+Logging and Troubleshooting 
 
-    # statically compile gofwd
-    # linux command:
-    go build -tags netgo -ldflags '-extldflags "-static"'
-    ldd gofwd
-
-    export CHROOT=${HOME}/chr
-    mkdir -p ${CHROOT}/etc/pki/ca-trust/extracted
-    # give full path to gofwd
-    cp bin/gofwd ${CHROOT}
-    # optional, give full path to duo.ini
-    cp bin/duo.ini ${CHROOT}
-    cp -a /etc/resolv.conf ${CHROOT}/etc/
-    cp -a /etc/pki/ca-trust/extracted/ ${CHROOT}/etc/pki/ca-trust/
-    
-    sudo chroot ${CHROOT} /gofwd -f 1.2.3.4:9876 -t 192.168.1.1:22 --duo /duo.ini:testuser
-
+docker logs -f <Container ID>
