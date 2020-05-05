@@ -127,7 +127,7 @@ Flags:
 docker run -d --restart unless-stopped -p 4567:4567
     -v /home/ec2-user/duo.ini:/duo.ini \
     jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 \
-    --duo /duo.ini:jftuga -l `39.858706,-104.670732` -d 80
+    --duo /duo.ini:jftuga -l 39.858706,-104.670732 -d 80
 ```
 
 | Explanation | Parameter |
