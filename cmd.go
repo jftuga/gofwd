@@ -254,12 +254,12 @@ func main() {
 		os.Exit(1)
 	}
 	if len(*loc) > 0 && 0 == *distance {
-		kingpin.FatalUsage("--distance must also be used with -loc")
+		kingpin.FatalUsage("--distance must be used with --loc")
 		os.Exit(1)
 	}
 
 	if *distance > 0 && (len(*city) > 0 || len(*region) > 0 || len(*country) > 0) {
-		kingpin.FatalUsage("--distance and not be used with any of these: city, region, country; Instead, use --loc with --distance")
+		kingpin.FatalUsage("--distance can not be used with any of these: city, region, country; Instead, use --loc with --distance")
 		os.Exit(1)
 	}
 	logger.Infof("gofwd, version %v started", version)
