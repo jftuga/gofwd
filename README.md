@@ -156,6 +156,7 @@ docker run -d --restart unless-stopped -p 4567:4567
 ## Acknowledgments
 * Some code was adopted from [The little forwarder that could](https://github.com/kintoandar/fwd/)
 * `gofwd`uses https://ipinfo.io/ to get Geo IP information in real time
+* * They provide 1,000 free, non-authenticated requests per day. 
 
 Other Go code used:
 
