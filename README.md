@@ -133,7 +133,7 @@ docker run -d --restart unless-stopped -p 4567:4567
 | Explanation | Parameter |
 --------------|------------
 | detach and run Docker in daemon mode | -d
-| restart container unless explicitly stopped | --restart unless-stopped
+| restart container (on error) unless explicitly stopped | --restart unless-stopped
 | redirect external TCP port to internal TCP port | -p 4567:4567
 | ini file is located on the host here: `/home/ec2-user/duo.ini` | -v `/home/ec2-user/duo.ini`:/duo.ini
 | ini file is mounted inside the container here: `/duo.ini` | -v /home/ec2-user/duo.ini:/`duo.ini`
@@ -142,11 +142,11 @@ docker run -d --restart unless-stopped -p 4567:4567
 | internal service is `192.168.1.1` on port `22` | -t 192.168.1.1:22
 | duo config file is mounted within the container | --duo `/duo.ini`:jftuga
 | duo user name | --duo /duo.ini:`jftuga`
-| location: Denver, CO with coordinates of | -l 39.858706,-104.670732
+| location: use coordinates for Denver, CO | -l 39.858706,-104.670732
 | distance: `80 miles` from Denver | -d 80
 
 
-**Note:** if you are running in a NAT environment, such as AWS, then you will need to append the `-p` option to allow RFC1918 private IPv4 addresses.
+**Note:** if you are running in a NAT environment, such as AWS, then you will need to include the `-p` option to allow RFC1918 private IPv4 addresses.
 
 
 ## chroot environment
