@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.5.2"
+const version = "0.6.0"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -43,6 +43,8 @@ var (
 	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
 	loc      = kingpin.Flag("loc", "only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)").Short('l').String()
 	distance = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
+	allowCIDR = kingpin.Flag("allow", "allow from a comma delimited list of CIDR networks, bypassing geo-ip, duo").Short('A').String()
+	denyCIDR  = kingpin.Flag("deny", "deny from a comma delimited list of CIDR networks, disregarding geo-ip, duo").Short('D').String()
 
 	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication (default is 120)").Default("120").Int64()
@@ -122,6 +124,33 @@ func fwd(src net.Conn, remote string, proto string) {
 	}()
 }
 
+func validateCIDRList(all *string) (string, bool) {
+	networks := strings.Split(*all,",")
+	for _, cidr := range networks {
+		_, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return cidr, false
+		}
+	}
+	return "", true
+}
+
+func ipIsInCIDR(s string, cidr *string) bool {
+	ip := net.ParseIP(s)
+	networks := strings.Split(*cidr,",")
+	for _, cidr := range networks {
+		_, ipv4Net, err := net.ParseCIDR(cidr)
+		if err != nil {
+			logger.Warnf("Invalid CIDR network: %s", err)
+			return false
+		}
+		if ipv4Net.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
 func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP ipInfoResult, duoCred duoCredentials, duoAuthCacheTime int64, allowPrivateIP bool) {
 	proto := "tcp"
 
@@ -155,6 +184,16 @@ func tcpStart(from string, to string, localGeoIP ipInfoResult, restrictionsGeoIP
 			}
 		}
 
+		if len(*denyCIDR) > 0 && ipIsInCIDR(remoteIP, denyCIDR) {
+			logger.Infof("[%v] DENIED; Explicitly Denied by -D option", src.RemoteAddr())
+			continue
+		}
+
+		if len(*allowCIDR) > 0 && ipIsInCIDR(remoteIP, allowCIDR) {
+			logger.Infof("[%v] ESTABLISHED; Explicitly Allowed by -A option", src.RemoteAddr())
+			go fwd(src, to, proto)
+			continue
+		}
 		invalidLocation, distanceCalc := validateLocation(localGeoIP, remoteGeoIP, restrictionsGeoIP)
 		if "127.0.0.1" != remoteIP {
 			if allowPrivateIP && isPrivateIPv4(remoteIP) {
@@ -253,6 +292,12 @@ func main() {
 		kingpin.FatalUsage("Both --from and --to are mandatory")
 		os.Exit(1)
 	}
+
+	if *from == *to {
+		kingpin.FatalUsage("--from and --to can not be identical")
+		os.Exit(1)
+	}
+
 	if len(*loc) > 0 && 0 == *distance {
 		kingpin.FatalUsage("--distance must be used with --loc")
 		os.Exit(1)
@@ -262,6 +307,25 @@ func main() {
 		kingpin.FatalUsage("--distance can not be used with any of these: city, region, country; Instead, use --loc with --distance")
 		os.Exit(1)
 	}
+
+	var badCIDR string
+	var ok bool
+	if len(*denyCIDR) > 0 {
+		badCIDR, ok = validateCIDRList(denyCIDR)
+		if !ok {
+			kingpin.FatalUsage("Invalid CIDR given for -D option: %s\n", badCIDR)
+			os.Exit(1)
+		}
+	}
+
+	if len(*allowCIDR) > 0 {
+		badCIDR, ok = validateCIDRList(allowCIDR)
+		if !ok {
+			kingpin.FatalUsage("Invalid CIDR given for -A option: %s\n", badCIDR)
+			os.Exit(1)
+		}
+	}
+
 	logger.Infof("gofwd, version %v started", version)
 
 	var duoCred duoCredentials
