@@ -27,7 +27,8 @@ The overall elegance of this solution is that no additional software is needed. 
 ## Usage
 
 ```
-usage: gofwd [<flags>]
+gofwd.exe: error: Both --from and --to are mandatory
+usage: gofwd.exe [<flags>]
 
 Flags:
       --help                Show context-sensitive help (also try --help-long
@@ -46,6 +47,10 @@ Flags:
   -l, --loc=LOC             only accept from within a geographic radius; format:
                             LATITUDE,LONGITUDE (use with --distance)
   -d, --distance=DISTANCE   only accept from within a given distance (in miles)
+  -A, --allow=ALLOW         allow from a comma delimited list of CIDR networks,
+                            bypassing geo-ip, duo
+  -D, --deny=DENY           deny from a comma delimited list of CIDR networks,
+                            disregarding geo-ip, duo
       --duo=DUO             path to duo ini config file and duo username;
                             format: filename:user (see --examples)
       --duo-cache-time=120  number of seconds to cache a successful Duo
