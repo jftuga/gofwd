@@ -27,7 +27,6 @@ The overall elegance of this solution is that no additional software is needed. 
 ## Usage
 
 ```
-gofwd.exe: error: Both --from and --to are mandatory
 usage: gofwd.exe [<flags>]
 
 Flags:
