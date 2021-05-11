@@ -2,7 +2,7 @@
 
 # Start gofwd in a docker container
 
-# You will first neet to create a Docker Image with the "docker_build_image.sh" script
+# You will first need to create a Docker Image with the "docker_build_image.sh" script
 # Then, set the IMG variable
 
 # This script can be run at reboot by adding the following into your crontab:
