@@ -12,15 +12,15 @@ Stand-alone, single-file executables for Windows, MacOS, and Linux can be downlo
 
 The standard `Duo 2FA` Windows RDP implementation issues the the second factor request after a RDP client has connected and issued a valid username / password combination.  The RDP port is always open to the Internet, which is a potential security issue.
 
-`gofwd` uses `Duo 2FA` *before* forwarding the RDP connection to an internal system.  The big caveat with `gofwd` is that it only works well in single-user scenarios.  However, being able to access your home lab remotely fits in well with this.
+`gofwd` uses `Duo 2FA` *before* forwarding the RDP connection to an internal system.  The big caveat with `gofwd` is that it only works well in single-user scenarios.  However, being able to access your home lab remotely fits in well in this scenario.
 
-`gofwd` can also be uses to protect SSH such as an AWS EC2 instance or Digital Ocean Droplet.
+`gofwd` can also be used to protect SSH such as an AWS EC2 instance or Digital Ocean Droplet.
 
-Both RDP to a home computer and remote SSH access work reliably well.  On a home network, `gofwd` can be run on a Raspberry Pi that forwards the connection to a Windows 10 system once Duo authentication is successful.  It can also run from within a Docker container for added security.
+Using both Remote Desktop to a home computer and remote SSH access work reliably well.  On a home network, `gofwd` can be run on a Raspberry Pi that forwards the connection to a Windows 10 system once Duo authentication is successful.  It can also run from within a Docker container for added security.
 
-The Geo-IP feature is nice because it limits who can initiate a `Duo 2FA` request. If someone tries to connect to your RDP port but is not within the defined geo-ip fence, then a `Duo 2FA` will not be sent to your phone.  **Running on a non-standard port for RDP is recommended to limit the number of 2FA requests.**
+The Geo-IP feature is nice because it limits who can initiate a `Duo 2FA` request. If someone tries to connect to your RDP port but is not within the defined geo-ip fence, then a `Duo 2FA` will not be sent to your phone.  **Running on a non-standard port for Remote Desktop and SSH is recommended to limit the number of 2FA requests.** You can also explicitly allow and deny networks with the `-A` and `-D` command-line options.  These overrides will bypass the geo-ip fence and 2FA.
 
- For example, you could use an 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.
+For example, you could use a 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.
 
 The overall elegance of this solution is that no additional software is needed.  As long as you are within your predefined geo-ip location, have your phone, and know your hostname/ip address (and port number), then you will be able to access your system remotely.
 
