@@ -19,4 +19,5 @@ gofwd
 !duo-example.ini
 dist/
 .??*~
+results.sarif
 
