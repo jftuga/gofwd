@@ -41,6 +41,7 @@ func getIPInfo(ip string) (ipInfoResult, error) {
 		api = "json"
 	}
 	url := "https://ipinfo.io/" + ip + api
+	// #nosec G107 -- ip has been validated
 	resp, err := http.Get(url)
 	if err != nil {
 		return obj, err
@@ -58,7 +59,12 @@ func getIPInfo(ip string) (ipInfoResult, error) {
 		return empty, err
 	}
 
-	json.Unmarshal(body, &obj)
+	err = json.Unmarshal(body, &obj)
+	if err != nil {
+		empty := ipInfoResult{}
+		return empty, err
+	}
+
 	return obj, nil
 }
 

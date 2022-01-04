@@ -133,5 +133,8 @@ func networkInterfaces(brief bool, debug bool) ([]string, []string, error) {
 func nics() {
 	argsAllDetails := false
 	argsDebug := false
-	networkInterfaces(!(argsAllDetails), argsDebug)
+	_, _, err := networkInterfaces(!(argsAllDetails), argsDebug)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+	}
 }
