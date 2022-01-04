@@ -14,6 +14,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Security Scan
+        uses: securego/gosec@master
+        with:
+          # report triggers content trigger a failure using GH Security features
+          args: '-no-fail -fmt sarif -out results.sarif ./...'
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: results.sarif
+
       - name: Set Up Go
         uses: actions/setup-go@v2
         with:
