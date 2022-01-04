@@ -11,4 +11,5 @@ require (
 	go.uber.org/zap v1.16.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.62.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
