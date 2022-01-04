@@ -29,7 +29,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const version = "0.6.0"
+const version = "0.6.1"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
@@ -38,11 +38,11 @@ var (
 	examples    = kingpin.Flag("examples", "show command line example and then exit").Bool()
 	versionOnly = kingpin.Flag("version", "show version and then exit").Bool()
 
-	city     = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
-	region   = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
-	country  = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
-	loc      = kingpin.Flag("loc", "only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)").Short('l').String()
-	distance = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
+	city      = kingpin.Flag("city", "only accept incoming connections that originate from given city").String()
+	region    = kingpin.Flag("region", "only accept incoming connections that originate from given region (eg: state)").String()
+	country   = kingpin.Flag("country", "only accept incoming connections that originate from given 2 letter country abbreviation").String()
+	loc       = kingpin.Flag("loc", "only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)").Short('l').String()
+	distance  = kingpin.Flag("distance", "only accept from within a given distance (in miles)").Short('d').Float64()
 	allowCIDR = kingpin.Flag("allow", "allow from a comma delimited list of CIDR networks, bypassing geo-ip, duo").Short('A').String()
 	denyCIDR  = kingpin.Flag("deny", "deny from a comma delimited list of CIDR networks, disregarding geo-ip, duo").Short('D').String()
 
@@ -125,7 +125,7 @@ func fwd(src net.Conn, remote string, proto string) {
 }
 
 func validateCIDRList(all *string) (string, bool) {
-	networks := strings.Split(*all,",")
+	networks := strings.Split(*all, ",")
 	for _, cidr := range networks {
 		_, _, err := net.ParseCIDR(cidr)
 		if err != nil {
@@ -137,7 +137,7 @@ func validateCIDRList(all *string) (string, bool) {
 
 func ipIsInCIDR(s string, cidr *string) bool {
 	ip := net.ParseIP(s)
-	networks := strings.Split(*cidr,",")
+	networks := strings.Split(*cidr, ",")
 	for _, cidr := range networks {
 		_, ipv4Net, err := net.ParseCIDR(cidr)
 		if err != nil {
