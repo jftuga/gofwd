@@ -26,10 +26,10 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 )
 
-const version = "0.6.1"
+const version = "0.7.0"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
