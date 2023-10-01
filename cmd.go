@@ -29,7 +29,7 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 )
 
-const version = "0.7.0"
+const version = "0.7.1"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
