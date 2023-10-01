@@ -4,9 +4,15 @@ set -euo pipefail
 
 function build() {
     echo
-    echo "Building for ${GF} for ${GOOS}/${GOARCH}"
+    echo "Building binary: ${GF}"
     echo
-    rm -f ${GF}
+    if [[ -e ${GF} ]] ; then
+        echo
+        echo "Using existing binary: ${GF}"
+        echo
+        ls -l ${GF}
+        return
+    fi
     CGO_ENABLED=0 go build -ldflags="-s -w"
     if [[ ! -e ${GF} ]] ; then
         echo
@@ -68,13 +74,13 @@ IMG=gofwd:${TAG}
 BUND="ca-bundle.crt"
 SC="ssl/certs/"
 GF="gofwd"
-GOOS="linux"
-GOARCH="amd64"
+#GOOS="linux"
+#GOARCH="amd64"
 if [[ ! -e ${SC} ]] ; then
     mkdir -p -m 755 ${SC}
 fi
 
 build
-bundle
-image
+#bundle
+#image
 
