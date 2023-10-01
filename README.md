@@ -107,10 +107,8 @@ Flags:
 
 ### Example Helper Scripts
 * To build an image: [docker_build_image.sh](https://github.com/jftuga/gofwd/blob/master/docker_build_image.sh)
-* * Your image will need to include these files used for DNS resolution:
-* * * etc/ssl/certs/ca-bundle.cr
-* * * etc/ssl/certs/ca-bundle.trust.crt
 * To run the built image: [docker_start_gofwd.sh](https://github.com/jftuga/gofwd/blob/master/docker_start_gofwd.sh) *(Edit first)*
+* * A `FROM` address of `0.0.0.0` should make `gofwd` listen on any interface.
 * To use `gofwd.exe` in Docker under Windows, consider using the [Microsoft Windows Nano Server](https://hub.docker.com/_/microsoft-windows-nanoserver) for containers.
 * To use `gofwd` in Docker under Linux, consider starting with [Scratch](https://hub.docker.com/_/scratch) for the container.
 
@@ -130,7 +128,7 @@ Flags:
 ```
 docker run -d --restart unless-stopped -p 4567:4567
     -v /home/ec2-user/duo.ini:/duo.ini \
-    jftuga:gofwd:v050.1 -f 1.2.3.4:4567 -t 192.168.1.1:22 \
+    jftuga:gofwd:v050.1 -f 0.0.0.0:4567 -t 192.168.1.1:22 \
     --duo /duo.ini:jftuga -l 39.858706,-104.670732 -d 80
 ```
 
@@ -142,7 +140,7 @@ docker run -d --restart unless-stopped -p 4567:4567
 | ini file is located on the host here: `/home/ec2-user/duo.ini` | -v `/home/ec2-user/duo.ini`:/duo.ini
 | ini file is mounted inside the container here: `/duo.ini` | -v /home/ec2-user/duo.ini:/`duo.ini`
 | container name and tag | jftuga:gofwd:v050.1
-| external service is `1.2.3.4` on port `4567` | -f 1.2.3.4:4567 
+| external service is `0.0.0.0` on port `4567` | -f 0.0.0.0:4567 
 | internal service is `192.168.1.1` on port `22` | -t 192.168.1.1:22
 | duo config file is mounted within the container | --duo `/duo.ini`:jftuga
 | duo user name | --duo /duo.ini:`jftuga`
