@@ -81,6 +81,6 @@ if [[ ! -e ${SC} ]] ; then
 fi
 
 build
-#bundle
-#image
+bundle
+image
 
