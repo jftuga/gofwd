@@ -13,12 +13,12 @@
 # 1) Get the container ID: docker container ps
 # 2) View the logs: docker logs -f <ID>
 
-IMG=ChangeMe
+IMG=gofwd:ChangeMe
 LOG=${HOME}/.gofwd.log
 DUOINI=${HOME}/duo.ini
 DUOUSR=ChangeMe
 EXTERNPORT=4567
-FROM=1.2.3.4:${EXTERNPORT}
+FROM=0.0.0.0:${EXTERNPORT}
 TO=192.168.1.1:22
 LOCATION=39.858706,-104.670732
 DIST=80
