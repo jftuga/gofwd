@@ -78,7 +78,7 @@ func getMainNic() string {
 			return "0.0.0.0"
 		}
 
-		allIPv4, allIPv6 := extractIPAddrs(iface.Name, allAddresses, true)
+		allIPv4, _ := extractIPAddrs(iface.Name, allAddresses, true)
 		if len(allIPv4) == 1 && strings.ToLower(iface.Name) == "eth0" {
 			for _, ipWithMask := range allIPv4 {
 				ip := strings.Split(ipWithMask, "/")
