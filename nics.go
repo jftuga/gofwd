@@ -66,6 +66,30 @@ func extractIPAddrs(ifaceName string, allAddresses []net.Addr, brief bool) ([]st
 	return allIPv4, allIPv6
 }
 
+func getMainNic() string {
+	adapters, err := net.Interfaces()
+	if err != nil {
+		return "0.0.0.0"
+	}
+
+	for _, iface := range adapters {
+		allAddresses, err := iface.Addrs()
+		if err != nil {
+			return "0.0.0.0"
+		}
+
+		allIPv4, allIPv6 := extractIPAddrs(iface.Name, allAddresses, true)
+		if len(allIPv4) == 1 && strings.ToLower(iface.Name) == "eth0" {
+			for _, ipWithMask := range allIPv4 {
+				ip := strings.Split(ipWithMask, "/")
+				return ip[0]
+			}
+		}
+	}
+
+	return "0.0.0.0"
+}
+
 func networkInterfaces(brief bool, debug bool) ([]string, []string, error) {
 	adapters, err := net.Interfaces()
 	if err != nil {

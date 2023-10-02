@@ -23,17 +23,17 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/olekukonko/tablewriter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"github.com/alecthomas/kingpin/v2"
 )
 
-const version = "0.7.1"
+const version = "0.7.2"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
-	from        = kingpin.Flag("from", "from IP address:port").Short('f').String()
+	from        = kingpin.Flag("from", "from IP address:port; use 'MAIN' for the address portion to use system's primary interface").Short('f').String()
 	to          = kingpin.Flag("to", "to IP address:port").Short('t').String()
 	examples    = kingpin.Flag("examples", "show command line example and then exit").Bool()
 	versionOnly = kingpin.Flag("version", "show version and then exit").Bool()
@@ -296,6 +296,10 @@ func main() {
 	if *from == *to {
 		kingpin.FatalUsage("--from and --to can not be identical")
 		os.Exit(1)
+	}
+
+	if strings.HasPrefix(*from, "MAIN:") {
+		*from = strings.Replace(*from, "MAIN", getMainNic(), 1)
 	}
 
 	if len(*loc) > 0 && 0 == *distance {

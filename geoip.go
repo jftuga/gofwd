@@ -28,9 +28,11 @@ type ipInfoResult struct {
 getIpInfo issues a web query to ipinfo.io
 The JSON result is converted to an ipInfoResult struct
 Args:
+
 	ip: an IPv4 address
 
 Returns:
+
 	an ipInfoResult struct containing the information returned by the service
 */
 func getIPInfo(ip string) (ipInfoResult, error) {
@@ -122,9 +124,11 @@ func validateLocation(localGeoIP ipInfoResult, remoteGeoIP ipInfoResult, restric
 latlon2coord converts a string such as "36.0525,-79.107" to a tuple of floats
 
 Args:
+
 	latlon: a string in "lat, lon" format
 
 Returns:
+
 	a tuple in (float64, float64) format
 */
 func latlon2coord(latlon string) (float64, float64, error) {
@@ -147,9 +151,10 @@ func hsin(theta float64) float64 {
 }
 
 // HaversineDistance returns the distance (in miles) between two points of
-//	 a given longitude and latitude relatively accurately (using a spherical
-//	 approximation of the Earth) through the Haversin Distance Formula for
-//	 great arc distance on a sphere with accuracy for small distances
+//
+//	a given longitude and latitude relatively accurately (using a spherical
+//	approximation of the Earth) through the Haversin Distance Formula for
+//	great arc distance on a sphere with accuracy for small distances
 //
 // point coordinates are supplied in degrees and converted into rad. in the func
 //

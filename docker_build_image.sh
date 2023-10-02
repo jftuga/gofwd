@@ -69,8 +69,7 @@ if [ $# -eq 0 ] ; then
     exit 1
 fi
 
-TAG=$1
-IMG=gofwd:${TAG}
+IMG=$1
 BUND="ca-bundle.crt"
 SC="ssl/certs/"
 GF="gofwd"
