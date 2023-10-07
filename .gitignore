@@ -20,4 +20,6 @@ gofwd
 dist/
 .??*~
 results.sarif
+ssl/
+.idea/
 
