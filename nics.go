@@ -66,28 +66,29 @@ func extractIPAddrs(ifaceName string, allAddresses []net.Addr, brief bool) ([]st
 	return allIPv4, allIPv6
 }
 
-func getMainNic() string {
+func getSpecificNic(adapter string) (string, error) {
 	adapters, err := net.Interfaces()
 	if err != nil {
-		return "0.0.0.0"
+		return "", err
 	}
 
+	adapter = strings.ToLower(adapter)
 	for _, iface := range adapters {
 		allAddresses, err := iface.Addrs()
 		if err != nil {
-			return "0.0.0.0"
+			return "", err
 		}
 
 		allIPv4, _ := extractIPAddrs(iface.Name, allAddresses, true)
-		if len(allIPv4) == 1 && strings.ToLower(iface.Name) == "eth0" {
+		if len(allIPv4) == 1 && strings.ToLower(iface.Name) == adapter {
 			for _, ipWithMask := range allIPv4 {
 				ip := strings.Split(ipWithMask, "/")
-				return ip[0]
+				return ip[0], nil
 			}
 		}
 	}
 
-	return "0.0.0.0"
+	return "", fmt.Errorf("Unknown adapter: '%s'. Use '-i' to list adapter names.", adapter)
 }
 
 func networkInterfaces(brief bool, debug bool) ([]string, []string, error) {
