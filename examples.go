@@ -12,6 +12,9 @@ func getExamples() [][]string {
 	examples = append(examples, []string{`    to get Latitude, Longitude use https://www.latlong.net/`, ` `})
 	examples = append(examples, []string{`allow only for a successful two-factor duo auth for 'testuser'`, `gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --duo duo.ini:testuser`})
 	examples = append(examples, []string{`allow only after both Geo IP and Duo are verified`, `gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --region Texas --duo duo.ini:testuser`})
+	examples = append(examples, []string{`forward from any interface on port 22, allow RFC1918 to connect`, `gofwd -f 0.0.0.0:22 -t 192.168.1.1:22 -p`})
+	examples = append(examples, []string{`forward from IP address bounded to eth0, allow RFC1918 to connect`, `gofwd -f _eth0:22 -t 192.168.1.1:22 -p`})
+	examples = append(examples, []string{`forward from IP address bounded to eno1, allow RFC1918 to connect`, `gofwd -f _eno1:80 -t example.com:80 -p`})
 
 	return examples
 }
