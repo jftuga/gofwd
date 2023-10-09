@@ -111,12 +111,13 @@ Flags:
 ### Static Compilation - Docker Only
 * Your version of `gofwd` will need to be statically compiled:
 
-| Platform | Command
-----------|-----
-| windows | go build -tags netgo -ldflags "-extldflags -static"
+| Platform  | Command
+------------|--------
+| windows   | go build -tags netgo -ldflags "-extldflags -static"
 | linux/bsd | go build -tags netgo -ldflags '-extldflags "-static" -s -w'
-| macos | go build -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
-| android | go build -ldflags -s
+| linux     | CGO_ENABLED=0 go build -ldflags='-s -w'
+| macos     | go build -ldflags '-s -extldflags "-sectcreate __TEXT __info_plist Info.plist"'
+| android   | go build -ldflags -s
 
 **NOTE:** *I have not been able to test all of these*
 
