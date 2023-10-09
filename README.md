@@ -20,42 +20,35 @@ Using both Remote Desktop to a home computer and remote SSH access work reliably
 
 The Geo-IP feature is nice because it limits who can initiate a `Duo 2FA` request. If someone tries to connect to your RDP port but is not within the defined geo-ip fence, then a `Duo 2FA` will not be sent to your phone.  **Running on a non-standard port for Remote Desktop and SSH is recommended to limit the number of 2FA requests.** You can also explicitly allow and deny networks with the `-A` and `-D` command-line options.  These overrides will bypass the geo-ip fence and 2FA.
 
-For example, you could use a 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.
+For example, you could use a 50 mile radius from your residence and you will probably not receive a `Duo 2FA` request from another person or bot.  Be aware that some mobile operators might issue you an IP address that is further away than expected.  The geo-ip fence can alternatively be defined based on city, region (state) and/or country or by using latitude, longitude coordinates. `gofwd` uses https://ipinfo.io/ to get this information in real time.  **Since
+ipinfo provides 1,000 free requests per day (from the same IP address), no API
+key is therefore used.**
 
-The overall elegance of this solution is that no additional software is needed.  As long as you are within your predefined geo-ip location, have your phone, and know your hostname/ip address (and port number), then you will be able to access your system remotely.
+**The overall elegance of this solution is that no additional software is needed.  As long as you are within your predefined geo-ip location, have your phone, and know your hostname/ip address (and port number), then you will be able to access your system remotely.**
 
 ## Usage
 
 ```
-usage: gofwd.exe [<flags>]
+usage: gofwd [<flags>]
+
 
 Flags:
-      --help                Show context-sensitive help (also try --help-long
-                            and --help-man).
-  -i, --int                 list local interface IP addresses
-  -f, --from=FROM           from IP address:port
-  -t, --to=TO               to IP address:port
-      --examples            show command line example and then exit
-      --version             show version and then exit
-      --city=CITY           only accept incoming connections that originate from
-                            given city
-      --region=REGION       only accept incoming connections that originate from
-                            given region (eg: state)
-      --country=COUNTRY     only accept incoming connections that originate from
-                            given 2 letter country abbreviation
-  -l, --loc=LOC             only accept from within a geographic radius; format:
-                            LATITUDE,LONGITUDE (use with --distance)
+      --[no-]help           Show context-sensitive help (also try --help-long and --help-man).
+  -i, --[no-]int            list local interface IP addresses
+  -f, --from=FROM           from address:port - use '0.0.0.0' for all interfaces; use '_eth0' for the address portion to use this interface; also '_en0', '_Ethernet', etc.
+  -t, --to=TO               to address:port - address portion can also be DNS name
+      --[no-]examples       show command line example and then exit
+      --[no-]version        show version and then exit
+      --city=CITY           only accept incoming connections that originate from given city
+      --region=REGION       only accept incoming connections that originate from given region (eg: state)
+      --country=COUNTRY     only accept incoming connections that originate from given 2 letter country abbreviation
+  -l, --loc=LOC             only accept from within a geographic radius; format: LATITUDE,LONGITUDE (use with --distance)
   -d, --distance=DISTANCE   only accept from within a given distance (in miles)
-  -A, --allow=ALLOW         allow from a comma delimited list of CIDR networks,
-                            bypassing geo-ip, duo
-  -D, --deny=DENY           deny from a comma delimited list of CIDR networks,
-                            disregarding geo-ip, duo
-      --duo=DUO             path to duo ini config file and duo username;
-                            format: filename:user (see --examples)
-      --duo-cache-time=120  number of seconds to cache a successful Duo
-                            authentication (default is 120)
-  -p, --private             allow RFC1918 private addresses for the remote IP
-
+  -A, --allow=ALLOW         allow from a comma delimited list of CIDR networks, bypassing geo-ip, duo
+  -D, --deny=DENY           deny from a comma delimited list of CIDR networks, disregarding geo-ip, duo
+      --duo=DUO             path to duo ini config file and duo username; format: filename:user (see --examples)
+      --duo-cache-time=120  number of seconds to cache a successful Duo authentication (default is 120)
+  -p, --[no-]private        allow RFC1918 private addresses for the incoming (connecting) IP
 ```
 
 
@@ -74,6 +67,9 @@ Flags:
 |     to get Latitude, Longitude use https://www.latlong.net/       |                                                                             |
 | allow only for a successful two-factor duo auth for 'testuser'    | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --duo duo.ini:testuser                |
 | allow only after both Geo IP and Duo are verified                 | gofwd -f 1.2.3.4:22 -t 192.168.1.1:22 --region Texas --duo duo.ini:testuser |
+| forward from any interface on port 22, allow RFC1918 to connect   | gofwd -f 0.0.0.0:22 -t 192.168.1.1:22 -p                                    |
+| forward from IP address bounded to eth0, allow RFC1918 to connect | gofwd -f _eth0:22 -t 192.168.1.1:2 -p                                       |
+| forward from IP address bounded to eno1, allow RFC1918 to connect | gofwd -f _eno1:80 -t example.com:80 -p                                      |
 +-------------------------------------------------------------------+-----------------------------------------------------------------------------+
 ```
 
