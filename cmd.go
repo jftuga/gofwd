@@ -29,12 +29,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const version = "0.7.2"
+const version = "0.7.3"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()
-	from        = kingpin.Flag("from", "from IP address:port; use 'MAIN' for the address portion to use system's primary interface").Short('f').String()
-	to          = kingpin.Flag("to", "to IP address:port").Short('t').String()
+	from        = kingpin.Flag("from", "from address:port - use '0.0.0.0' for all interfaces; use '_eth0' for the address portion to use this interface; also '_en0', '_Ethernet', etc.").Short('f').String()
+	to          = kingpin.Flag("to", "to address:port - address portion can also be DNS name").Short('t').String()
 	examples    = kingpin.Flag("examples", "show command line example and then exit").Bool()
 	versionOnly = kingpin.Flag("version", "show version and then exit").Bool()
 
@@ -48,7 +48,7 @@ var (
 
 	duo              = kingpin.Flag("duo", "path to duo ini config file and duo username; format: filename:user (see --examples)").String()
 	duoAuthCacheTime = kingpin.Flag("duo-cache-time", "number of seconds to cache a successful Duo authentication (default is 120)").Default("120").Int64()
-	private          = kingpin.Flag("private", "allow RFC1918 private addresses for the remote IP").Short('p').Bool()
+	private          = kingpin.Flag("private", "allow RFC1918 private addresses for the incoming (connecting) IP").Short('p').Bool()
 )
 
 var logger *zap.SugaredLogger
@@ -298,8 +298,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	if strings.HasPrefix(*from, "MAIN:") {
-		*from = strings.Replace(*from, "MAIN", getMainNic(), 1)
+	if !strings.Contains(*from, ":") {
+		kingpin.FatalUsage("--from does not contain a ':' character")
+		os.Exit(1)
+	}
+
+	if !strings.Contains(*to, ":") {
+		kingpin.FatalUsage("--to does not contain a ':' character")
+		os.Exit(1)
+	}
+
+	if strings.HasPrefix(*from, "_") {
+		pos := strings.Index(*from, ":")
+		adapter := (*from)[1:pos]
+		port := (*from)[pos+1:]
+		address, err := getSpecificNic(adapter)
+		if err != nil {
+			kingpin.FatalUsage(err.Error())
+		}
+		*from = address + ":" + port
 	}
 
 	if len(*loc) > 0 && 0 == *distance {
@@ -331,6 +348,8 @@ func main() {
 	}
 
 	logger.Infof("gofwd, version %v started", version)
+	logger.Info("from: [%s]", *from)
+	logger.Info("  to: [%s]", *to)
 
 	var duoCred duoCredentials
 	if len(*duo) > 0 {
