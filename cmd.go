@@ -29,7 +29,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const version = "0.7.3"
+const version = "0.7.4"
 
 var (
 	list        = kingpin.Flag("int", "list local interface IP addresses").Short('i').Bool()

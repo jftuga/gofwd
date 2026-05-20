@@ -5,8 +5,8 @@ github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137/go.mod h1:OMCwj8V
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/duosecurity/duo_api_golang v0.0.0-20230418202038-096d3306c029 h1:MDyoHXcEq2ZjPFeWrdof3GPBJohXIoL62eVxK/hjhy4=
-github.com/duosecurity/duo_api_golang v0.0.0-20230418202038-096d3306c029/go.mod h1:jI+QUTOK3wqIOrUl0Cwnwlgc/P6vs6pZOuQY3aKggwg=
+github.com/duosecurity/duo_api_golang v0.2.0 h1:diaP849w5WuK60Z0ZX+esjvaobZSDXqM9YDUIUpaTAo=
+github.com/duosecurity/duo_api_golang v0.2.0/go.mod h1:hJ6IPTuCAvWv+i9ubnPZB3VpVRuj/+SAblWFcI0mjEU=
 github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=

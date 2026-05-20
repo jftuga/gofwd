@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.3.2
-	github.com/duosecurity/duo_api_golang v0.0.0-20230418202038-096d3306c029
+	github.com/duosecurity/duo_api_golang v0.2.0
 	github.com/olekukonko/tablewriter v0.0.5
 	go.uber.org/zap v1.26.0
 	gopkg.in/ini.v1 v1.67.0
